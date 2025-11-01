@@ -63,4 +63,15 @@
     	"networkmanager" 
     ]; 
   };
+
+  fonts.packages = with pkgs; [
+    font-awesome
+    noto-fonts
+    nerd-fonts.fira-code
+    nerd-fonts.droid-sans-mono
+  ];
+
+  services.walker = {
+    enable = true;
+  };
 }

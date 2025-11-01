@@ -30,8 +30,10 @@
 
   programs.git = {
       enable = true;
-      userEmail = "5728708+LANWrench@users.noreply.github.com";
-      userName = "Michael";
+      settings = {
+        user.name = "Michael";
+        user.email = "5728708+LANWrench@users.noreply.github.com";
+      };
   };
   programs.neovim = {
       enable = true;
