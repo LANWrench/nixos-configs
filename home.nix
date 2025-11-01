@@ -18,6 +18,16 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
+	programs.bash = {
+		enable = true;
+		shellAliases = {
+			btw = "echo i use hyprland btw";
+		};
+		profileExtra = ''
+         hyprland			
+		'';
+	};
+
   programs.git = {
       enable = true;
       userEmail = "5728708+LANWrench@users.noreply.github.com";
