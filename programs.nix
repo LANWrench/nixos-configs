@@ -20,8 +20,8 @@
 
   programs.git = {
     enable = true;
-    userEmail = "5728708+LANWrench@users.noreply.github.com";
-    userName = "Michael";
+    # userEmail = "5728708+LANWrench@users.noreply.github.com";
+    # userName = "Michael";
   };
 
   programs.neovim = {
