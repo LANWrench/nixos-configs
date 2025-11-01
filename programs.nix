@@ -11,6 +11,7 @@
 	hyprpaper
     fzf
     kitty
+    nwg-look
   ];
 
   programs.hyprland = {
