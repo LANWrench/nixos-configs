@@ -11,11 +11,10 @@
 	git
 	hyprpaper
     fzf
-
+    kitty
     brave
   ];
 
-  programs.kitty.enable = true;
   programs.hyprland.enable = true;
 
   programs.git = {
