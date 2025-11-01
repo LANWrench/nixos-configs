@@ -7,7 +7,7 @@
 {
   imports =
     [ # Include the results of the hardware scan.
-      /etc/nixos/hardware-configuration.nix
+      ./hardware-configuration.nix
       ./programs.nix
     ];
 
@@ -34,12 +34,12 @@
   services.printing.enable = true;
 
   # Enable sound.
-  services.pulseaudio.enable = true;
+  # services.pulseaudio.enable = true;
   # OR
-  # services.pipewire = {
-  #   enable = true;
-  #   pulse.enable = true;
-  # };
+  services.pipewire = {
+    enable = true;
+    pulse.enable = true;
+  };
 
   services.getty.autologinUser = "michael";
 
