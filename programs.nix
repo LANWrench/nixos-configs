@@ -11,6 +11,7 @@
 	hyprpaper
     fzf
     kitty
+    impala # tui for managing wifi connections
     nwg-look
   ];
 

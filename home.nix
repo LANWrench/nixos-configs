@@ -13,6 +13,12 @@
     discord
     btop
     kdePackages.dolphin
+    localsend
+    nordic # gtk and kde theme
+    orchis-theme
+    hackneyed # windows 3.x inspired cursor theme
+    kora-icon-theme
+    reversal-icon-theme
 ];
 
   services.walker = {
