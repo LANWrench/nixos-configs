@@ -76,4 +76,11 @@
     nerd-fonts.fira-code
     nerd-fonts.droid-sans-mono
   ];
+
+  environment.variables = {
+    XCURSOR_THEME = "Hackneyed";
+    XCURSOR_SIZE = "24";
+    HYPRCURSOR_THEME = "Hackneyed";
+    HYPRCURSOR_SIZE = "24";
+  };
 }
