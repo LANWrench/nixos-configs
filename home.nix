@@ -19,6 +19,11 @@
   #   btop.enable = true;
   # };
 
+  stylix = {
+    enable = true;
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
+  };
+
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
     brave
