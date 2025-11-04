@@ -67,6 +67,10 @@
 
   programs.kitty = {
     enable = true;
+    settings = {
+      confirm_os_window_close = 0;
+      };
+    };
     # Optional: keep your own overrides cleanly layered
     extraConfig = ''
       # You can still add custom lines here if you want
