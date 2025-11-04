@@ -35,6 +35,7 @@
     hackneyed # windows 3.x inspired cursor theme
     kora-icon-theme
     reversal-icon-theme
+    catppuccin-gtk
 ];
 
   services.walker = {
