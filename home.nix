@@ -67,9 +67,6 @@
 
   programs.kitty = {
     enable = true;
-    font.name = "JetBrainsMono Nerd Font";
-    font.size = 12;
-
     # Optional: keep your own overrides cleanly layered
     extraConfig = ''
       # You can still add custom lines here if you want
