@@ -7,17 +7,7 @@
   home.homeDirectory = "/home/michael";
   home.stateVersion = "25.05";
 
-  # catppuccin = {
-  #   enable = true;
-  #   flavor = "mocha";
-
-  #   hyprland.enable = true;
-  #   kitty.enable = true;
-  #   nvim.enable = true;
-  #   waybar.enable = true;
-  #   brave.enable = true;
-  #   btop.enable = true;
-  # };
+  xdg.enable = true;
 
   stylix = {
     enable = true;
