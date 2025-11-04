@@ -14,6 +14,8 @@
     btop
     nemo
     localsend
+    vscode
+    steam
 
     # Themes and icons
     nordic # gtk and kde theme
