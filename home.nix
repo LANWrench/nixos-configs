@@ -12,8 +12,10 @@
     brave
     discord
     btop
-    kdePackages.dolphin
+    nemo
     localsend
+
+    # Themes and icons
     nordic # gtk and kde theme
     orchis-theme
     hackneyed # windows 3.x inspired cursor theme
