@@ -11,8 +11,12 @@
     enable = true;
     flavor = "mocha";
 
+    hyprland.enable = true;
     kitty.enable = true;
+    nvim.enable = true;
     waybar.enable = true;
+    brave.enable = true;
+    btop.enable = true;
   };
 
   # Packages that should be installed to the user profile.
