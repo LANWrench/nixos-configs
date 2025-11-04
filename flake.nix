@@ -5,17 +5,16 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    catppuccin.url = "github:catppuccin/nix";
+    stylix.url = "github:danth/stylix";
   };
 
-  outputs = inputs@{ nixpkgs, home-manager, catppuccin, ... }: {
+  outputs = inputs@{ nixpkgs, home-manager, stylix, ... }: {
     nixosConfigurations = {
       nixos = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
           { nixpkgs.config.allowUnfree = true; }
           ./configuration.nix
-          catppuccin.nixosModules.catppuccin
           home-manager.nixosModules.home-manager
           {
             home-manager.backupFileExtension = "backup";
@@ -24,7 +23,7 @@
             home-manager.users.michael = {
               imports = [
               ./home.nix
-              catppuccin.homeModules.catppuccin
+              stylix.homeManagerModules.stylix
               ];
             };
           }

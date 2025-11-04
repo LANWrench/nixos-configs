@@ -7,17 +7,17 @@
   home.homeDirectory = "/home/michael";
   home.stateVersion = "25.05";
 
-  catppuccin = {
-    enable = true;
-    flavor = "mocha";
+  # catppuccin = {
+  #   enable = true;
+  #   flavor = "mocha";
 
-    hyprland.enable = true;
-    kitty.enable = true;
-    nvim.enable = true;
-    waybar.enable = true;
-    brave.enable = true;
-    btop.enable = true;
-  };
+  #   hyprland.enable = true;
+  #   kitty.enable = true;
+  #   nvim.enable = true;
+  #   waybar.enable = true;
+  #   brave.enable = true;
+  #   btop.enable = true;
+  # };
 
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
@@ -35,7 +35,7 @@
     hackneyed # windows 3.x inspired cursor theme
     kora-icon-theme
     reversal-icon-theme
-    catppuccin-gtk
+    # catppuccin-gtk
 ];
 
   services.walker = {
@@ -61,16 +61,16 @@
   };
 
   programs.kitty = {
-  enable = true;
-  font.name = "JetBrainsMono Nerd Font";
-  font.size = 12;
+    enable = true;
+    font.name = "JetBrainsMono Nerd Font";
+    font.size = 12;
 
-  # Optional: keep your own overrides cleanly layered
-  extraConfig = ''
-    # You can still add custom lines here if you want
-    map ctrl+shift+t new_tab
-  '';
-};
+    # Optional: keep your own overrides cleanly layered
+    extraConfig = ''
+      # You can still add custom lines here if you want
+      map ctrl+shift+t new_tab
+    '';
+  };
 
   programs.git = {
       enable = true;
