@@ -10,6 +10,10 @@
   catppuccin = {
     enable = true;
     flavor = "mocha";
+
+    gtk.enable = true;
+    kitty.enable = true;
+    waybar.enable = true;
   };
 
   # Packages that should be installed to the user profile.
