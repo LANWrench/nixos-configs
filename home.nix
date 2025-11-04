@@ -7,6 +7,11 @@
   home.homeDirectory = "/home/michael";
   home.stateVersion = "25.05";
 
+  catppuccin = {
+    enable = true;
+    flavor = "mocha";
+  };
+
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
     brave
