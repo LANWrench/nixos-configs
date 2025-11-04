@@ -23,7 +23,7 @@
             home-manager.users.michael = {
               imports = [
               ./home.nix
-              stylix.homeManagerModules.stylix
+              stylix.homeModules.stylix
               ];
             };
           }
