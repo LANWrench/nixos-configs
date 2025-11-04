@@ -50,6 +50,23 @@
 		'';
 	};
 
+  programs.waybar = {
+    enable = true;
+    systemd.enable = true; # makes it start with your session
+  };
+
+  programs.kitty = {
+  enable = true;
+  font.name = "JetBrainsMono Nerd Font";
+  font.size = 12;
+
+  # Optional: keep your own overrides cleanly layered
+  extraConfig = ''
+    # You can still add custom lines here if you want
+    map ctrl+shift+t new_tab
+  '';
+};
+
   programs.git = {
       enable = true;
       settings = {
