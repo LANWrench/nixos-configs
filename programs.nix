@@ -8,7 +8,8 @@
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     git
-	hyprpaper
+    kitty
+	  hyprpaper
     fzf
     impala # tui for managing wifi connections
     nwg-look
