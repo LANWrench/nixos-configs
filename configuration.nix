@@ -1,0 +1,159 @@
+{ config, lib, pkgs, ... }:
+
+{
+  imports = [
+    # Hardware configuration
+    ./hardware-configuration.nix
+
+    # System modules
+    ./modules/snapper.nix
+    ./modules/restic.nix
+    ./modules/auto-update.nix
+
+    # ========================================
+    # DESKTOP ENVIRONMENT - Choose one below
+    # ========================================
+    # Comment out the one you're NOT using
+
+    # ./desktops/niri.nix
+    ./desktops/kde.nix
+    # ./desktops/cosmic.nix
+  ];
+
+  # Nix settings
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  # Boot configuration
+  boot = {
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
+    kernelPackages = pkgs.linuxPackages_latest;
+    kernelParams = [
+      "nvidia-drm.modeset=1"
+      "nvidia-drm.fbdev=1"
+    ];
+    plymouth.enable = true;
+  };
+
+  # Hardware configuration
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
+
+  hardware.nvidia = {
+    modesetting.enable = true;
+    powerManagement.enable = false;
+    open = false;
+    nvidiaSettings = true;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+  };
+
+  # Networking
+  networking.hostName = "nixos-desktop";
+  networking.networkmanager.enable = true;
+  networking.firewall.allowedTCPPorts = [ 53317 ]; # LocalSend
+
+  # Time zone
+  time.timeZone = "America/Chicago";
+
+  # Audio
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
+
+  # Printing
+  services.printing = {
+    enable = true;
+    drivers = [
+      pkgs.gutenprint
+    ];
+  };
+
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
+
+  # BTRFS auto-scrub
+  services.btrfs.autoScrub = {
+    enable = true;
+    interval = "weekly";
+    fileSystems = [ "/" ];
+  };
+
+  # Users
+  users.users.michael = {
+    isNormalUser = true;
+    extraGroups = [ "wheel" "networkmanager" "video" "cdrom" ];
+    shell = pkgs.fish;
+  };
+
+  programs.fish.enable = true;
+
+  # Common system packages (desktop-agnostic)
+  environment.systemPackages = with pkgs; [
+    vim
+    wget
+    git
+    curl
+    keyutils
+    gparted
+    nushell
+  ];
+
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+  };
+
+  # Fonts
+  fonts.packages = with pkgs; [
+    nerd-fonts.fira-mono
+    nerd-fonts.jetbrains-mono
+    nerd-fonts.iosevka
+    nerd-fonts.caskaydia-mono
+    nerd-fonts.droid-sans-mono
+    nerd-fonts.hack
+    nerd-fonts.blex-mono
+    nerd-fonts.meslo-lg
+    nerd-fonts.roboto-mono
+    ibm-plex
+    noto-fonts
+    corefonts
+    vista-fonts
+  ];
+
+  # Security
+  security.polkit.enable = true;
+
+  # Enable CD/DVD burning with proper capabilities
+  security.wrappers.cdrecord = {
+    source = "${pkgs.cdrtools}/bin/cdrecord";
+    capabilities = "cap_sys_resource,cap_dac_override,cap_sys_admin,cap_sys_nice,cap_net_bind_service,cap_ipc_lock,cap_sys_rawio+eip";
+    owner = "root";
+    group = "cdrom";
+    permissions = "u+rx,g+x";
+  };
+
+  services.dbus.enable = true;
+
+  # USB udev rules
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="0fd9", ATTRS{idProduct}=="0066", ATTR{power/control}="on"
+  '';
+
+  # Fix Elgato Cam Link 4K
+  boot.extraModprobeConfig = ''
+    options uvcvideo nodrop=0
+    options uvcvideo quirks=0
+  '';
+
+  system.stateVersion = "25.05";
+}

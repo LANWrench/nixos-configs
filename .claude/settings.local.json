@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(lsblk:*)",
+      "Bash(systemctl status:*)"
+    ]
+  }
+}
