@@ -15,8 +15,8 @@
     # ========================================
     # Comment out the one you're NOT using
 
-    # ./desktops/niri.nix
-    ./desktops/kde.nix
+    ./desktops/niri.nix
+    # ./desktops/kde.nix
     # ./desktops/cosmic.nix
   ];
 

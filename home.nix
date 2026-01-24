@@ -11,8 +11,8 @@
     # ========================================
     # Comment out the one you're NOT using
 
-    # ./desktops/home/niri.nix
-    ./desktops/home/kde.nix
+    ./desktops/home/niri.nix
+    # ./desktops/home/kde.nix
     # ./desktops/home/cosmic.nix
   ];
 
@@ -29,6 +29,7 @@
     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
     targets = {
       # neovim.enable = false;
+      kde.enable = false;  # Disable Stylix for KDE - use native KDE theming
     };
     fonts = {
       monospace = {
@@ -75,6 +76,9 @@
     winboat
     pcsx2
     pkgs-stable.mudlet
+    lutris
+    r2modman
+    nexusmods-app-unfree
 
     # Utilities
     localsend

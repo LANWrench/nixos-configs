@@ -14,24 +14,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    quickshell = {
-      url = "github:outfoxxed/quickshell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    noctalia = {
-      url = "github:noctalia-dev/noctalia-shell";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.quickshell.follows = "quickshell";
-    };
-
     stylix = {
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = inputs@{ nixpkgs, home-manager, stylix, noctalia, ... }: {
+  outputs = inputs@{ nixpkgs, home-manager, stylix, ... }: {
     nixosConfigurations = {
       # Replace "nixos-desktop" with your actual hostname
       nixos-desktop = nixpkgs.lib.nixosSystem {
@@ -62,7 +51,6 @@
               imports = [
                 ./home.nix
                 stylix.homeModules.stylix
-                noctalia.homeModules.default
               ];
             };
           }

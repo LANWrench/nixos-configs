@@ -1,23 +1,10 @@
 { config, pkgs, ... }:
 
 {
-  # Noctalia Shell service for Niri
-  systemd.user.services.noctalia = {
-    Unit = {
-      Description = "Noctalia Shell Service";
-      PartOf = [ "graphical-session.target" ];
-      After = [ "graphical-session.target" ];
-    };
-
-    Service = {
-      ExecStart = "/etc/profiles/per-user/michael/bin/noctalia-shell";
-      Restart = "on-failure";
-      RestartSec = 1;
-    };
-
-    Install = {
-      WantedBy = [ "graphical-session.target" ];
-    };
+  # Dank Material Shell
+  programs.dms-shell = {
+    enable = true;
+    systemd.enable = true;  # Auto-start via systemd
   };
 
   # Polkit authentication agent
@@ -47,8 +34,6 @@
   programs.fuzzel.enable = true;    # Application launcher
   programs.foot.enable = true;      # Terminal emulator
   programs.rofi.enable = true;      # Alternative launcher
-
-  programs.noctalia-shell.enable = true;
 
   # Niri-specific home packages
   home.packages = with pkgs; [

@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(lsblk:*)",
-      "Bash(systemctl status:*)"
+      "Bash(systemctl status:*)",
+      "WebFetch(domain:github.com)",
+      "WebSearch",
+      "WebFetch(domain:danklinux.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }
