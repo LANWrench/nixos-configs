@@ -4,6 +4,12 @@
   # Enable Niri window manager
   programs.niri.enable = true;
 
+  # Dank Material Shell
+  programs.dms-shell = {
+    enable = true;
+    systemd.enable = true;  # Auto-start via systemd
+  };
+
   # Display Manager (GDM with Wayland support)
   services.displayManager = {
     autoLogin = {

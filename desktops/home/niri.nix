@@ -1,12 +1,6 @@
 { config, pkgs, ... }:
 
 {
-  # Dank Material Shell
-  programs.dms-shell = {
-    enable = true;
-    systemd.enable = true;  # Auto-start via systemd
-  };
-
   # Polkit authentication agent
   systemd.user.services.polkit-mate = {
     Unit = {
@@ -32,7 +26,14 @@
 
   # Niri-specific programs
   programs.fuzzel.enable = true;    # Application launcher
-  programs.foot.enable = true;      # Terminal emulator
+  programs.foot = {
+    enable = true;
+    settings = {
+      main = {
+        pad = "10x10";              # Add padding around terminal content
+      };
+    };
+  };
   programs.rofi.enable = true;      # Alternative launcher
 
   # Niri-specific home packages
