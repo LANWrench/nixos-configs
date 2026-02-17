@@ -87,7 +87,7 @@
     qbittorrent
 
     # CLI Tools
-    btop
+    (btop.override { cudaSupport = true; })
 
     # Infrastructure tools
     azure-storage-azcopy

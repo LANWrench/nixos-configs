@@ -23,6 +23,15 @@
   # Nix settings
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # Allow root (auto-update service) to access user-owned Git repository
+  # Without this, nixos-upgrade.service fails with "repository path is not owned by current user"
+  programs.git = {
+    enable = true;
+    config = {
+      safe.directory = "/home/michael/nixos-config2";
+    };
+  };
+
   # Boot configuration
   boot = {
     loader = {
