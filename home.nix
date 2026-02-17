@@ -164,16 +164,18 @@
 
   programs.vscode = {
     enable = true;
-    enableUpdateCheck = false;
-    enableExtensionUpdateCheck = false;
-    extensions = with pkgs.vscode-extensions; [
-      hashicorp.terraform
-      ms-azuretools.vscode-bicep
-      ms-dotnettools.vscode-dotnet-runtime
-    ];
-    userSettings = {
-      "dotnetAcquisitionExtension.sharedExistingDotnetPath" = "/etc/profiles/per-user/michael/bin/dotnet";
-      "dotnetAcquisitionExtension.allowInvalidPaths" = true;
+    profiles.default = {
+      enableUpdateCheck = false;
+      enableExtensionUpdateCheck = false;
+      extensions = with pkgs.vscode-extensions; [
+        hashicorp.terraform
+        ms-azuretools.vscode-bicep
+        ms-dotnettools.vscode-dotnet-runtime
+      ];
+      userSettings = {
+        "dotnetAcquisitionExtension.sharedExistingDotnetPath" = "/etc/profiles/per-user/michael/bin/dotnet";
+        "dotnetAcquisitionExtension.allowInvalidPaths" = true;
+      };
     };
   };
 }
