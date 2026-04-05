@@ -109,10 +109,13 @@ require('telescope').setup {
       require('telescope.themes').get_dropdown(),
     },
   },
+  file_ignore_patterns = {
+    "node_modules"
+  },
 }
 
 -- Enable Telescope extensions if installed
-pcall(require('telescope').load_extension, 'fzf')
+-- pcall(require('telescope').load_extension, 'fzf')
 pcall(require('telescope').load_extension, 'ui-select')
 
 -- Telescope keymaps
@@ -387,7 +390,7 @@ cmp.setup {
 }
 
 -- [[ Configure Treesitter ]]
-require('nvim-treesitter.configs').setup {
+require('nvim-treesitter.config').setup {
   highlight = {
     enable = true,
     additional_vim_regex_highlighting = false,

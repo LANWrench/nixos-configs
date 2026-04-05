@@ -8,7 +8,8 @@
       "WebFetch(domain:danklinux.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(lspci:*)",
-      "Bash(nvidia-smi:*)"
+      "Bash(nvidia-smi:*)",
+      "WebFetch(domain:discourse.nixos.org)"
     ]
   }
 }

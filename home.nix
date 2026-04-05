@@ -58,6 +58,7 @@
     brave
     discord
     mailspring
+    teamspeak3
 
     # File managers and utilities
     nemo
@@ -79,6 +80,7 @@
     lutris
     r2modman
     nexusmods-app-unfree
+    heroic
 
     # Utilities
     localsend
@@ -119,8 +121,6 @@
     shellAliases = { };
   };
 
-  programs.nushell.enable = true;
-
   programs.fish = {
     enable = true;
     shellInit = ''
@@ -142,6 +142,7 @@
     settings = {
       user.name = "Michael";
       user.email = "5728708+LANWrench@users.noreply.github.com";
+      init.defaultBranch = "main";
     };
   };
 

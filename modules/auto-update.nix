@@ -4,7 +4,7 @@
   # Automatic system updates for flake-based configurations
   system.autoUpgrade = {
     enable = true;
-    flake = "/home/michael/nixos-config2";
+    flake = "/home/michael/nix-config";
     flags = [
       "--recreate-lock-file"  # Update ALL inputs
       "--commit-lock-file"

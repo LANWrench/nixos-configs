@@ -107,6 +107,10 @@
 
   programs.fish.enable = true;
 
+  # Gaming applications needed at system level
+  programs.gamemode.enable = true;
+  programs.gamescope.enable = true;
+
   # Common system packages (desktop-agnostic)
   environment.systemPackages = with pkgs; [
     vim
@@ -115,7 +119,7 @@
     curl
     keyutils
     gparted
-    nushell
+    ripgrep
   ];
 
   environment.sessionVariables = {
