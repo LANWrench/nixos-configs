@@ -20,7 +20,10 @@
   home.username = "michael";
   home.homeDirectory = "/home/michael";
   home.stateVersion = "25.05";
-
+  home.sessionPath = [
+    "$HOME/.local/bin"
+  ]; 
+  
   xdg.enable = true;
 
   # Stylix theming
@@ -58,7 +61,6 @@
     brave
     discord
     mailspring
-    teamspeak3
 
     # File managers and utilities
     nemo
@@ -82,6 +84,9 @@
     nexusmods-app-unfree
     heroic
 
+    # AI
+    lmstudio
+
     # Utilities
     localsend
     gnome-calculator
@@ -94,6 +99,8 @@
     # Infrastructure tools
     azure-storage-azcopy
     terraform
+    opentofu
+    colmena
     kubectl
     azure-cli
     dotnet-sdk

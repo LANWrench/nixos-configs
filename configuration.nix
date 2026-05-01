@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   imports = [
@@ -9,6 +9,9 @@
     ./modules/snapper.nix
     ./modules/restic.nix
     ./modules/auto-update.nix
+
+    # Containers
+    ./modules/searxng.nix
 
     # ========================================
     # DESKTOP ENVIRONMENT - Choose one below
@@ -28,7 +31,7 @@
   programs.git = {
     enable = true;
     config = {
-      safe.directory = "/home/michael/nixos-config2";
+      safe.directory = "/home/michael/nixos-config";
     };
   };
 
@@ -64,6 +67,15 @@
   networking.hostName = "nixos-desktop";
   networking.networkmanager.enable = true;
   networking.firewall.allowedTCPPorts = [ 53317 ]; # LocalSend
+
+  # SSH
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      PermitRootLogin = "no";
+    };
+  };
 
   # Time zone
   time.timeZone = "America/Chicago";
@@ -103,6 +115,9 @@
     isNormalUser = true;
     extraGroups = [ "wheel" "networkmanager" "video" "cdrom" ];
     shell = pkgs.fish;
+    openssh.authorizedKeys.keys = [
+    #  "public-key-goes-here"
+    ];
   };
 
   programs.fish.enable = true;
@@ -120,6 +135,7 @@
     keyutils
     gparted
     ripgrep
+    inputs.agenix.packages."x86_64-linux".default
   ];
 
   environment.sessionVariables = {
