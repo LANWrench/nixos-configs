@@ -1,0 +1,226 @@
+Apr 27 00:40:44 nixos-desktop systemd[1]: Starting NixOS Upgrade...
+░░ Subject: A start job for unit nixos-upgrade.service has begun execution
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ A start job for unit nixos-upgrade.service has begun execution.
+░░ 
+░░ The job identifier is 52780.
+Apr 27 00:40:45 nixos-desktop nixos-upgrade-start[684109]: unpacking 1 channels...
+Apr 27 00:40:45 nixos-desktop nixos-upgrade-start[684139]: warning: '--recreate-lock-file' is deprecated and will be removed in a future version; use 'nix flake update' instead.
+Apr 27 00:40:45 nixos-desktop nixos-upgrade-start[684139]: error:
+Apr 27 00:40:45 nixos-desktop nixos-upgrade-start[684139]:        … while fetching the input 'git+file:///home/michael/nix-config'
+Apr 27 00:40:45 nixos-desktop nixos-upgrade-start[684139]:        error: opening Git repository "/home/michael/nix-config": repository path '/home/michael/nix-config' is not owned by current user
+Apr 27 00:40:45 nixos-desktop nixos-upgrade-start[684102]: Command 'nix --extra-experimental-features 'nix-command flakes' build --print-out-paths '/home/michael/nix-config#nixosConfigurations."nixos-desktop".config.system.build.nixos-rebuild' --print-build-logs --refresh --recreate-lock-file --commit-lock-file --no-link' returned non-zero exit status 1.
+Apr 27 00:40:45 nixos-desktop systemd[1]: nixos-upgrade.service: Main process exited, code=exited, status=1/FAILURE
+░░ Subject: Unit process exited
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ An ExecStart= process belonging to unit nixos-upgrade.service has exited.
+░░ 
+░░ The process' exit code is 'exited' and its exit status is 1.
+Apr 27 00:40:45 nixos-desktop systemd[1]: nixos-upgrade.service: Failed with result 'exit-code'.
+░░ Subject: Unit failed
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ The unit nixos-upgrade.service has entered the 'failed' state with result 'exit-code'.
+Apr 27 00:40:45 nixos-desktop systemd[1]: Failed to start NixOS Upgrade.
+░░ Subject: A start job for unit nixos-upgrade.service has failed
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ A start job for unit nixos-upgrade.service has finished with a failure.
+░░ 
+░░ The job identifier is 52780 and the job result is failed.
+Apr 27 00:40:45 nixos-desktop systemd[1]: nixos-upgrade.service: Consumed 202ms CPU time, 28.6M memory peak, 4K read from disk, 108K written to disk, 19.4K incoming IP traffic, 8.2K outgoing IP traffic.
+░░ Subject: Resources consumed by unit runtime
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ The unit nixos-upgrade.service completed and consumed the indicated resources.
+Apr 30 21:40:52 nixos-desktop systemd[1]: Starting NixOS Upgrade...
+░░ Subject: A start job for unit nixos-upgrade.service has begun execution
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ A start job for unit nixos-upgrade.service has begun execution.
+░░ 
+░░ The job identifier is 85848.
+Apr 30 21:40:53 nixos-desktop nixos-upgrade-start[1419026]: unpacking 1 channels...
+Apr 30 21:40:53 nixos-desktop nixos-upgrade-start[1419056]: warning: '--recreate-lock-file' is deprecated and will be removed in a future version; use 'nix flake update' instead.
+Apr 30 21:40:53 nixos-desktop nixos-upgrade-start[1419056]: error:
+Apr 30 21:40:53 nixos-desktop nixos-upgrade-start[1419056]:        … while fetching the input 'git+file:///home/michael/nix-config'
+Apr 30 21:40:53 nixos-desktop nixos-upgrade-start[1419056]:        error: opening Git repository "/home/michael/nix-config": repository path '/home/michael/nix-config' is not owned by current user
+Apr 30 21:40:53 nixos-desktop nixos-upgrade-start[1419025]: Command 'nix --extra-experimental-features 'nix-command flakes' build --print-out-paths '/home/michael/nix-config#nixosConfigurations."nixos-desktop".config.system.build.nixos-rebuild' --print-build-logs --refresh --recreate-lock-file --commit-lock-file --no-link' returned non-zero exit status 1.
+Apr 30 21:40:53 nixos-desktop systemd[1]: nixos-upgrade.service: Main process exited, code=exited, status=1/FAILURE
+░░ Subject: Unit process exited
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ An ExecStart= process belonging to unit nixos-upgrade.service has exited.
+░░ 
+░░ The process' exit code is 'exited' and its exit status is 1.
+Apr 30 21:40:53 nixos-desktop systemd[1]: nixos-upgrade.service: Failed with result 'exit-code'.
+░░ Subject: Unit failed
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ The unit nixos-upgrade.service has entered the 'failed' state with result 'exit-code'.
+Apr 30 21:40:53 nixos-desktop systemd[1]: Failed to start NixOS Upgrade.
+░░ Subject: A start job for unit nixos-upgrade.service has failed
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ A start job for unit nixos-upgrade.service has finished with a failure.
+░░ 
+░░ The job identifier is 85848 and the job result is failed.
+Apr 30 21:40:53 nixos-desktop systemd[1]: nixos-upgrade.service: Consumed 228ms CPU time, 43.7M memory peak, 13M read from disk, 15.7K incoming IP traffic, 8.1K outgoing IP traffic.
+░░ Subject: Resources consumed by unit runtime
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ The unit nixos-upgrade.service completed and consumed the indicated resources.
+Apr 30 21:45:44 nixos-desktop systemd[1]: Starting NixOS Upgrade...
+░░ Subject: A start job for unit nixos-upgrade.service has begun execution
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ A start job for unit nixos-upgrade.service has begun execution.
+░░ 
+░░ The job identifier is 87318.
+Apr 30 21:45:44 nixos-desktop nixos-upgrade-start[1423307]: unpacking 1 channels...
+Apr 30 21:45:44 nixos-desktop nixos-upgrade-start[1423333]: warning: '--recreate-lock-file' is deprecated and will be removed in a future version; use 'nix flake update' instead.
+Apr 30 21:45:44 nixos-desktop nixos-upgrade-start[1423333]: error:
+Apr 30 21:45:44 nixos-desktop nixos-upgrade-start[1423333]:        … while fetching the input 'git+file:///home/michael/nix-config'
+Apr 30 21:45:44 nixos-desktop nixos-upgrade-start[1423333]:        error: opening Git repository "/home/michael/nix-config": repository path '/home/michael/nix-config' is not owned by current user
+Apr 30 21:45:44 nixos-desktop nixos-upgrade-start[1423306]: Command 'nix --extra-experimental-features 'nix-command flakes' build --print-out-paths '/home/michael/nix-config#nixosConfigurations."nixos-desktop".config.system.build.nixos-rebuild' --print-build-logs --refresh --recreate-lock-file --no-link' returned non-zero exit status 1.
+Apr 30 21:45:44 nixos-desktop systemd[1]: nixos-upgrade.service: Main process exited, code=exited, status=1/FAILURE
+░░ Subject: Unit process exited
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ An ExecStart= process belonging to unit nixos-upgrade.service has exited.
+░░ 
+░░ The process' exit code is 'exited' and its exit status is 1.
+Apr 30 21:45:44 nixos-desktop systemd[1]: nixos-upgrade.service: Failed with result 'exit-code'.
+░░ Subject: Unit failed
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ The unit nixos-upgrade.service has entered the 'failed' state with result 'exit-code'.
+Apr 30 21:45:44 nixos-desktop systemd[1]: Failed to start NixOS Upgrade.
+░░ Subject: A start job for unit nixos-upgrade.service has failed
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ A start job for unit nixos-upgrade.service has finished with a failure.
+░░ 
+░░ The job identifier is 87318 and the job result is failed.
+Apr 30 21:46:52 nixos-desktop systemd[1]: Starting NixOS Upgrade...
+░░ Subject: A start job for unit nixos-upgrade.service has begun execution
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ A start job for unit nixos-upgrade.service has begun execution.
+░░ 
+░░ The job identifier is 87433.
+Apr 30 21:46:52 nixos-desktop nixos-upgrade-start[1423655]: unpacking 1 channels...
+Apr 30 21:46:52 nixos-desktop nixos-upgrade-start[1423681]: warning: '--recreate-lock-file' is deprecated and will be removed in a future version; use 'nix flake update' instead.
+Apr 30 21:46:52 nixos-desktop nixos-upgrade-start[1423681]: error:
+Apr 30 21:46:52 nixos-desktop nixos-upgrade-start[1423681]:        … while fetching the input 'git+file:///home/michael/nix-config'
+Apr 30 21:46:52 nixos-desktop nixos-upgrade-start[1423681]:        error: opening Git repository "/home/michael/nix-config": repository path '/home/michael/nix-config' is not owned by current user
+Apr 30 21:46:52 nixos-desktop nixos-upgrade-start[1423654]: Command 'nix --extra-experimental-features 'nix-command flakes' build --print-out-paths '/home/michael/nix-config#nixosConfigurations."nixos-desktop".config.system.build.nixos-rebuild' --print-build-logs --refresh --recreate-lock-file --no-link' returned non-zero exit status 1.
+Apr 30 21:46:52 nixos-desktop systemd[1]: nixos-upgrade.service: Main process exited, code=exited, status=1/FAILURE
+░░ Subject: Unit process exited
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ An ExecStart= process belonging to unit nixos-upgrade.service has exited.
+░░ 
+░░ The process' exit code is 'exited' and its exit status is 1.
+Apr 30 21:46:52 nixos-desktop systemd[1]: nixos-upgrade.service: Failed with result 'exit-code'.
+░░ Subject: Unit failed
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ The unit nixos-upgrade.service has entered the 'failed' state with result 'exit-code'.
+Apr 30 21:46:52 nixos-desktop systemd[1]: Failed to start NixOS Upgrade.
+░░ Subject: A start job for unit nixos-upgrade.service has failed
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ A start job for unit nixos-upgrade.service has finished with a failure.
+░░ 
+░░ The job identifier is 87433 and the job result is failed.
+Apr 30 21:51:33 nixos-desktop systemd[1]: Starting NixOS Upgrade...
+░░ Subject: A start job for unit nixos-upgrade.service has begun execution
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ A start job for unit nixos-upgrade.service has begun execution.
+░░ 
+░░ The job identifier is 88903.
+Apr 30 21:51:33 nixos-desktop nixos-upgrade-start[1426578]: unpacking 1 channels...
+Apr 30 21:51:33 nixos-desktop nixos-upgrade-start[1426604]: error:
+Apr 30 21:51:33 nixos-desktop nixos-upgrade-start[1426604]:        … while fetching the input 'git+file:///home/michael/nix-config'
+Apr 30 21:51:33 nixos-desktop nixos-upgrade-start[1426604]:        error: opening Git repository "/home/michael/nix-config": repository path '/home/michael/nix-config' is not owned by current user
+Apr 30 21:51:33 nixos-desktop nixos-upgrade-start[1426577]: Command 'nix --extra-experimental-features 'nix-command flakes' build --print-out-paths '/home/michael/nix-config#nixosConfigurations."nixos-desktop".config.system.build.nixos-rebuild' --print-build-logs --refresh --no-link' returned non-zero exit status 1.
+Apr 30 21:51:33 nixos-desktop systemd[1]: nixos-upgrade.service: Main process exited, code=exited, status=1/FAILURE
+░░ Subject: Unit process exited
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ An ExecStart= process belonging to unit nixos-upgrade.service has exited.
+░░ 
+░░ The process' exit code is 'exited' and its exit status is 1.
+Apr 30 21:51:33 nixos-desktop systemd[1]: nixos-upgrade.service: Failed with result 'exit-code'.
+░░ Subject: Unit failed
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ The unit nixos-upgrade.service has entered the 'failed' state with result 'exit-code'.
+Apr 30 21:51:33 nixos-desktop systemd[1]: Failed to start NixOS Upgrade.
+░░ Subject: A start job for unit nixos-upgrade.service has failed
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ A start job for unit nixos-upgrade.service has finished with a failure.
+░░ 
+░░ The job identifier is 88903 and the job result is failed.
+Apr 30 21:51:40 nixos-desktop systemd[1]: Starting NixOS Upgrade...
+░░ Subject: A start job for unit nixos-upgrade.service has begun execution
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ A start job for unit nixos-upgrade.service has begun execution.
+░░ 
+░░ The job identifier is 89018.
+Apr 30 21:51:40 nixos-desktop nixos-upgrade-start[1426681]: unpacking 1 channels...
+Apr 30 21:51:40 nixos-desktop nixos-upgrade-start[1426707]: error:
+Apr 30 21:51:40 nixos-desktop nixos-upgrade-start[1426707]:        … while fetching the input 'git+file:///home/michael/nix-config'
+Apr 30 21:51:40 nixos-desktop nixos-upgrade-start[1426707]:        error: opening Git repository "/home/michael/nix-config": repository path '/home/michael/nix-config' is not owned by current user
+Apr 30 21:51:40 nixos-desktop nixos-upgrade-start[1426680]: Command 'nix --extra-experimental-features 'nix-command flakes' build --print-out-paths '/home/michael/nix-config#nixosConfigurations."nixos-desktop".config.system.build.nixos-rebuild' --print-build-logs --refresh --no-link' returned non-zero exit status 1.
+Apr 30 21:51:40 nixos-desktop systemd[1]: nixos-upgrade.service: Main process exited, code=exited, status=1/FAILURE
+░░ Subject: Unit process exited
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ An ExecStart= process belonging to unit nixos-upgrade.service has exited.
+░░ 
+░░ The process' exit code is 'exited' and its exit status is 1.
+Apr 30 21:51:40 nixos-desktop systemd[1]: nixos-upgrade.service: Failed with result 'exit-code'.
+░░ Subject: Unit failed
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ The unit nixos-upgrade.service has entered the 'failed' state with result 'exit-code'.
+Apr 30 21:51:40 nixos-desktop systemd[1]: Failed to start NixOS Upgrade.
+░░ Subject: A start job for unit nixos-upgrade.service has failed
+░░ Defined-By: systemd
+░░ Support: https://lists.freedesktop.org/mailman/listinfo/systemd-devel
+░░ 
+░░ A start job for unit nixos-upgrade.service has finished with a failure.
+░░ 
+░░ The job identifier is 89018 and the job result is failed.

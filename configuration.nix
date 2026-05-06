@@ -9,6 +9,7 @@
     ./modules/snapper.nix
     ./modules/restic.nix
     ./modules/auto-update.nix
+    ./modules/virtualization.nix
 
     # Containers
     ./modules/searxng.nix
@@ -34,6 +35,8 @@
       safe.directory = "/home/michael/nixos-config";
     };
   };
+  # Allow my regular user to read a FUSE mount
+  programs.fuse.userAllowOther = true;
 
   # Boot configuration
   boot = {
@@ -113,7 +116,7 @@
   # Users
   users.users.michael = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "cdrom" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "cdrom" "libvirtd" ];
     shell = pkgs.fish;
     openssh.authorizedKeys.keys = [
     #  "public-key-goes-here"
@@ -136,6 +139,7 @@
     gparted
     ripgrep
     inputs.agenix.packages."x86_64-linux".default
+    fuse
   ];
 
   environment.sessionVariables = {
