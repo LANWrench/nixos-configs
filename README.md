@@ -173,6 +173,7 @@ Weekly automatic updates are enabled via `features/auto-update.nix`:
 
 ## Documentation
 
+- **[SETUP-NEW-HOST.md](SETUP-NEW-HOST.md)** - Complete guide for deploying to a fresh NixOS system
 - [STRUCTURE.md](STRUCTURE.md) - Detailed structure documentation
 - [MIGRATION-BACKUP-CLEANUP.md](MIGRATION-BACKUP-CLEANUP.md) - Backup strategy details
 
