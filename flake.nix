@@ -1,5 +1,5 @@
 {
-  description = "Modular NixOS Desktop Configuration";
+  description = "Multi-host modular NixOS configuration with shared base";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -23,7 +23,8 @@
 
   outputs = inputs@{ nixpkgs, home-manager, stylix, agenix, ... }: {
     nixosConfigurations = {
-      # Replace "nixos-desktop" with your actual hostname
+      # Desktop host configuration
+      # Add new hosts here (laptop, wsl, etc.) with their own host directories
       nixos-desktop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = {
@@ -35,7 +36,7 @@
         };
         modules = [
           { nixpkgs.config.allowUnfree = true; }
-          ./configuration.nix
+          ./hosts/nixos-desktop
 
           agenix.nixosModules.default
 
@@ -53,7 +54,7 @@
             };
             home-manager.users.michael = {
               imports = [
-                ./home.nix
+                ./hosts/nixos-desktop/home.nix
                 stylix.homeModules.stylix
               ];
             };

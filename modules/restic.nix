@@ -1,5 +1,13 @@
 { config, pkgs, ... }:
 
+# ==================================================================================
+# DEPRECATED: This file is no longer used
+# The active configuration is now in: features/backup.nix
+#
+# This file is kept as a reference. You can safely delete it after confirming
+# the new structure works correctly.
+# ==================================================================================
+
 {
   environment.systemPackages = with pkgs; [
     restic

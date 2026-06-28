@@ -1,5 +1,13 @@
 { config, lib, pkgs, inputs, ... }:
 
+# ==================================================================================
+# DEPRECATED: This file is no longer used by flake.nix
+# The active configuration is now in: hosts/nixos-desktop/default.nix
+#
+# This file is kept as a reference. You can safely delete it after confirming
+# the new structure works correctly.
+# ==================================================================================
+
 {
   imports = [
     # Hardware configuration
@@ -19,9 +27,10 @@
     # ========================================
     # Comment out the one you're NOT using
 
-    ./desktops/niri.nix
+    # ./desktops/niri.nix
     # ./desktops/kde.nix
     # ./desktops/cosmic.nix
+    ./desktops/gnome.nix
   ];
 
   # Nix settings

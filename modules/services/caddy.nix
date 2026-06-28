@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 let
   caddyWithDns = pkgs.caddy.withPlugins {
@@ -7,7 +7,7 @@ let
   };
 in {
   age.secrets.caddy-env = {
-    file = ../secrets/caddy-env.age;
+    file = ../../secrets/caddy-env.age;
     owner = "caddy";
     mode = "0400";
   };

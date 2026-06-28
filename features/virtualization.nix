@@ -8,10 +8,7 @@
       package = pkgs.qemu_kvm;
       runAsRoot = false;
       swtpm.enable = true;  # TPM emulation (required for Windows 11)
-      ovmf = {
-        enable = true;  # UEFI firmware support
-        packages = [ pkgs.OVMFFull.fd ];
-      };
+      # OVMF (UEFI firmware) is now included by default
     };
   };
 
@@ -26,7 +23,7 @@
     spice             # SPICE client libraries - remote display protocol for VMs
     spice-gtk         # GTK widget implementing SPICE protocol
     spice-protocol    # SPICE protocol headers for compatibility
-    win-virtio        # Paravirtualized drivers for Windows guests (improves performance)
+    virtio-win        # Paravirtualized drivers for Windows guests (improves performance)
     win-spice         # SPICE guest agent for Windows (clipboard, resolution, mouse integration)
   ];
 }

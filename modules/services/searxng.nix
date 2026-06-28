@@ -2,7 +2,7 @@
 
 {
   age.secrets.searxng-settings = {
-    file = ../secrets/searxng-settings.age;
+    file = ../../secrets/searxng-settings.age;
     mode = "0400";
   };
 

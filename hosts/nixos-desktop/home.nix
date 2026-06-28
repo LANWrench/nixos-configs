@@ -1,28 +1,13 @@
 { config, pkgs, pkgs-stable, ... }:
 
-# ==================================================================================
-# DEPRECATED: This file is no longer used by flake.nix
-# The active home configuration is now in: hosts/nixos-desktop/home.nix
-#
-# This file is kept as a reference. You can safely delete it after confirming
-# the new structure works correctly.
-# ==================================================================================
-
 {
   imports = [
     # Home modules
-    ./modules/neovim.nix
-    ./modules/starship.nix
+    ../../modules/neovim.nix
+    ../../modules/starship.nix
 
-    # ========================================
-    # DESKTOP ENVIRONMENT - Choose one below
-    # ========================================
-    # Comment out the one you're NOT using
-
-    # ./desktops/home/niri.nix
-    # ./desktops/home/kde.nix
-    # ./desktops/home/cosmic.nix
-    ./desktops/home/gnome.nix
+    # Desktop environment (host-specific choice)
+    ../../desktops/home/gnome.nix
   ];
 
   # Home Manager configuration
@@ -31,8 +16,8 @@
   home.stateVersion = "25.05";
   home.sessionPath = [
     "$HOME/.local/bin"
-  ]; 
-  
+  ];
+
   xdg.enable = true;
 
   # Stylix theming - disabled for GNOME desktop
@@ -40,11 +25,9 @@
     enable = false;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
     targets = {
-      # neovim.enable = false;
-      kde.enable = false;  # Disable Stylix for KDE - use native KDE theming
-      gnome.enable = false;  # Disable Stylix for GNOME - use native GNOME theming
-      gtk.enable = false;  # Disable GTK theming
-      # Keep these disabled when using GNOME to avoid conflicts
+      kde.enable = false;
+      gnome.enable = false;
+      gtk.enable = false;
     };
     fonts = {
       monospace = {
@@ -67,7 +50,7 @@
     };
   };
 
-  # Common packages (desktop-agnostic)
+  # Host-specific packages
   home.packages = with pkgs; [
     # Browsers and communication
     brave
@@ -89,7 +72,7 @@
     # Media
     vlc
 
-    # Gaming
+    # Gaming (desktop-specific)
     steam
     winboat
     pcsx2
@@ -131,13 +114,12 @@
     hackneyed
     kora-icon-theme
     reversal-icon-theme
-
   ];
 
-  # Services (desktop-agnostic)
+  # Services
   services.podman.enable = true;
 
-  # Programs (desktop-agnostic)
+  # Programs
   programs.home-manager.enable = true;
 
   programs.bash = {
@@ -163,9 +145,9 @@
 
   programs.git = {
     enable = true;
-    settings = {
-      user.name = "Michael";
-      user.email = "5728708+LANWrench@users.noreply.github.com";
+    userName = "Michael";
+    userEmail = "5728708+LANWrench@users.noreply.github.com";
+    extraConfig = {
       init.defaultBranch = "main";
     };
   };

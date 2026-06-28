@@ -9,7 +9,15 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(lspci:*)",
       "Bash(nvidia-smi:*)",
-      "WebFetch(domain:discourse.nixos.org)"
+      "WebFetch(domain:discourse.nixos.org)",
+      "Bash(moonlight-qt:*)",
+      "Bash(tree:*)",
+      "Bash(systemctl list-timers:*)",
+      "Bash(systemctl cat:*)",
+      "Bash(sudo snapper:*)",
+      "Bash(sudo btrfs subvolume:*)",
+      "Bash(test:*)",
+      "Bash(journalctl:*)"
     ]
   }
 }
