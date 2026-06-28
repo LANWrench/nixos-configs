@@ -1,191 +1,181 @@
-# Modular NixOS Desktop Configuration
+# NixOS Configuration
 
-This is an example configuration showing how to organize desktop environments as swappable modules.
+Multi-host NixOS configuration using flakes with shared base configuration.
 
-## Directory Structure
+## Quick Start
+
+```bash
+# Clone this repo
+git clone git@github.com:LANWrench/nixos-configs.git ~/nix-config
+cd ~/nix-config
+
+# Build for your host
+sudo nixos-rebuild switch --flake .#nixos-desktop
+```
+
+## Hosts
+
+- **nixos-desktop** - Main desktop with Nvidia GPU, GNOME, gaming setup
+- **laptop** - (future) Laptop configuration
+- **wsl** - (future) WSL instance
+
+## Structure
 
 ```
-nixos-config2/
-├── flake.nix                  # Flake configuration
-├── configuration.nix          # Main system configuration
-├── home.nix                   # Main home-manager configuration
+nix-config/
+├── flake.nix                    # Flake entry point
+├── base/                        # Shared across all hosts
+│   ├── core.nix                 # Core packages, fonts
+│   ├── security.nix             # SSH, polkit
+│   ├── audio.nix                # PipeWire
+│   ├── networking.nix           # NetworkManager
+│   └── printing.nix             # CUPS
+├── features/                    # Optional system features
+│   ├── btrfs-snapshots.nix      # Local /home snapshots
+│   ├── backup.nix               # Restic off-site backup
+│   ├── auto-update.nix          # Weekly updates
+│   ├── virtualization.nix       # VMs (libvirt/QEMU)
+│   ├── containers.nix           # Podman/OCI
+│   └── gaming.nix               # Gaming programs
+├── hosts/                       # Per-host configurations
+│   └── nixos-desktop/
+│       ├── default.nix          # Host entry point
+│       ├── hardware.nix         # Nvidia GPU, BTRFS
+│       ├── configuration.nix    # Hostname, timezone
+│       └── home.nix             # User packages
+├── users/
+│   └── michael.nix              # User account definition
+├── modules/
+│   ├── neovim.nix
+│   ├── starship.nix
+│   └── services/
+│       ├── searxng.nix
+│       └── caddy.nix
 ├── desktops/
-│   ├── niri.nix              # Niri window manager system config
-│   ├── cosmic.nix            # COSMIC desktop system config
-│   └── home/
-│       ├── niri.nix          # Niri home-manager config
-│       └── cosmic.nix        # COSMIC home-manager config
-└── modules/
-    └── (your other modules would go here)
+│   ├── gnome.nix                # System-level DE config
+│   ├── kde.nix
+│   ├── niri.nix
+│   ├── cosmic.nix
+│   └── home/                    # User-level DE config
+│       ├── gnome.nix
+│       ├── kde.nix
+│       ├── niri.nix
+│       └── cosmic.nix
+└── secrets/                     # agenix encrypted secrets
 ```
 
-## How to Switch Desktop Environments
+See [STRUCTURE.md](STRUCTURE.md) for detailed documentation.
 
-### 1. In `configuration.nix` (lines 13-15):
+## Backup Strategy
 
-**For Niri:**
-```nix
-./desktops/niri.nix
-# ./desktops/cosmic.nix
-```
+**Fast Recovery (Local):**
+- Snapper hourly snapshots of `/home` only
+- No root snapshots (prevents accumulation)
+- Access at `/home/.snapshots/`
 
-**For COSMIC:**
-```nix
-# ./desktops/niri.nix
-./desktops/cosmic.nix
-```
+**Disaster Recovery (Off-site):**
+- Restic daily backups
+- Currently backs up to `/backup` (configure off-site!)
+- See [MIGRATION-BACKUP-CLEANUP.md](MIGRATION-BACKUP-CLEANUP.md)
 
-### 2. In `home.nix` (lines 11-13):
+## Adding a New Host
 
-**For Niri:**
-```nix
-./desktops/home/niri.nix
-# ./desktops/home/cosmic.nix
-```
-
-**For COSMIC:**
-```nix
-# ./desktops/home/niri.nix
-./desktops/home/cosmic.nix
-```
-
-## What Each Desktop Module Contains
-
-### System-level (`desktops/niri.nix` or `desktops/cosmic.nix`)
-- Desktop environment/window manager enablement
-- Display manager configuration
-- XDG portal settings
-- Desktop-specific system packages
-- Required system services
-
-### Home-level (`desktops/home/niri.nix` or `desktops/home/cosmic.nix`)
-- User services (notification daemons, status bars, etc.)
-- Desktop-specific programs (terminal, launcher, etc.)
-- User-level configurations
-
-## Benefits
-
-1. **Clean separation** - All DE-specific config in dedicated modules
-2. **Easy switching** - Just comment/uncomment one line in each config
-3. **No conflicts** - Each DE has isolated configuration
-4. **Maintainable** - Easy to see what belongs to each DE
-5. **Reusable** - Share desktop modules across different machines
-
-## To Use This Configuration
-
-1. Copy your `hardware-configuration.nix` to this directory
-2. Move your existing modules to the `modules/` directory
-3. Update the imports in `configuration.nix` and `home.nix` to include them
-4. Update the hostname in `flake.nix` (line 33) to match your system
-5. Initialize the flake:
+1. Create host directory:
    ```bash
-   cd ~/nixos-config2
-   git init
-   git add .
+   mkdir -p hosts/laptop
    ```
-6. Rebuild with:
+
+2. Copy and customize from `hosts/nixos-desktop/`:
+   - `default.nix` - Import base + features you need
+   - `hardware.nix` - Hardware-specific config
+   - `configuration.nix` - Hostname, timezone
+   - `home.nix` - User packages
+
+3. Add to `flake.nix`:
+   ```nix
+   nixosConfigurations = {
+     nixos-desktop = ...;
+     laptop = nixpkgs.lib.nixosSystem { ... };
+   };
+   ```
+
+4. Build:
    ```bash
-   sudo nixos-rebuild switch --flake ~/nixos-config2#nixos-desktop
+   sudo nixos-rebuild switch --flake .#laptop
    ```
-   (Replace `nixos-desktop` with your actual hostname)
+
+## Switching Desktop Environments
+
+Edit `hosts/<hostname>/default.nix`:
+
+```nix
+# Change from:
+../../desktops/gnome.nix
+
+# To:
+../../desktops/kde.nix
+```
+
+Also update `hosts/<hostname>/home.nix`:
+
+```nix
+# Change from:
+../../desktops/home/gnome.nix
+
+# To:
+../../desktops/home/kde.nix
+```
+
+Then rebuild:
+```bash
+sudo nixos-rebuild switch --flake .#nixos-desktop
+```
+
+## Maintenance
+
+### Update System
+```bash
+# Update flake inputs
+nix flake update
+
+# Rebuild
+sudo nixos-rebuild switch --flake .#nixos-desktop
+```
+
+### Clean Old Generations
+```bash
+# Delete generations older than 30 days
+sudo nix-collect-garbage --delete-older-than 30d
+
+# Optimize nix store
+nix-store --optimise
+```
+
+### Check Backups
+```bash
+# List snapshots
+sudo snapper -c home list
+
+# List restic backups
+sudo restic -r /backup snapshots
+
+# Check backup logs
+journalctl -u restic-backups-fullMachine.service -n 100
+```
 
 ## Automatic Updates
 
-This configuration includes automatic weekly updates via the `modules/auto-update.nix` module.
+Weekly automatic updates are enabled via `features/auto-update.nix`:
+- Updates all flake inputs
+- Rebuilds system
+- Runs weekly with randomized delay
+- Check status: `systemctl status nixos-upgrade.timer`
 
-### What It Does
+## Documentation
 
-**Weekly Updates:**
-- Updates ALL flake inputs (nixpkgs, home-manager, stylix, noctalia, etc.)
-- Rebuilds your system with the new versions
-- Commits the updated `flake.lock` file
-- Runs once a week with a randomized delay (to avoid load spikes)
-- Safe to rollback if anything breaks (NixOS keeps old generations)
+- [STRUCTURE.md](STRUCTURE.md) - Detailed structure documentation
+- [MIGRATION-BACKUP-CLEANUP.md](MIGRATION-BACKUP-CLEANUP.md) - Backup strategy details
 
-**Weekly Cleanup:**
-- Garbage collects system generations older than 30 days
-- Optimizes the nix store to save disk space
+## License
 
-### Customizing Update Behavior
-
-**Change update frequency** - Edit `dates` in `modules/auto-update.nix`:
-```nix
-dates = "daily";      # Every day
-dates = "weekly";     # Once a week (default: Sunday)
-dates = "Mon 03:00";  # Specific day and time
-dates = "monthly";    # Once a month
-```
-
-**Update only specific inputs** - If you prefer more control, modify the `flags` section:
-```nix
-flags = [
-  "--update-input" "nixpkgs"          # Update only nixpkgs
-  "--update-input" "home-manager"     # Update only home-manager
-  "--commit-lock-file"
-  "-L"
-];
-```
-
-**Update everything (default)**:
-```nix
-flags = [
-  "--recreate-lock-file"  # Update ALL inputs
-  "--commit-lock-file"
-  "-L"
-];
-```
-
-**Disable automatic updates** - Set `enable = false` in the module or remove it from `configuration.nix`
-
-### Monitoring Updates
-
-```bash
-# View the systemd timer status
-systemctl status nixos-upgrade.timer
-
-# View the last update log
-journalctl -u nixos-upgrade.service
-
-# Manually trigger an update now
-sudo systemctl start nixos-upgrade.service
-
-# See when the next update is scheduled
-systemctl list-timers nixos-upgrade.timer
-```
-
-### Manual Updates
-
-You can still manually update at any time:
-
-```bash
-# Update all flake inputs
-nix flake update
-
-# Update just nixpkgs
-nix flake lock --update-input nixpkgs
-
-# Update home-manager only
-nix flake lock --update-input home-manager
-
-# Show what's currently locked
-nix flake metadata
-
-# After updating, rebuild
-sudo nixos-rebuild switch --flake ~/nixos-config2#nixos-desktop
-```
-
-### Flake Lock File
-
-The `flake.lock` file pins all your inputs to specific versions:
-- **Reproducibility** - Same package versions every build
-- **Stability** - No unexpected changes from upstream
-- **Control** - You decide when to update
-
-Always commit `flake.lock` to git along with `flake.nix`.
-
-## Notes
-
-- The system-level config requires sudo to rebuild
-- The home-manager config can be rebuilt separately with `home-manager switch`
-- Both configs need to be set to the same desktop environment
-- Common packages and settings stay in the main config files
+Personal configuration - feel free to use as reference.

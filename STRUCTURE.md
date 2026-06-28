@@ -92,9 +92,12 @@ nix-config/
        # Host-specific configuration
        ./configuration.nix
 
-       # Choose which modules you need
-       ../../modules/snapper.nix
-       ../../modules/restic.nix
+       # Choose which features you need
+       ../../features/btrfs-snapshots.nix  # Optional: local snapshots
+       ../../features/backup.nix           # Optional: restic backups
+       # Skip heavy features for laptop:
+       # ../../features/virtualization.nix  # Too resource-intensive
+       # ../../features/gaming.nix          # Not needed on laptop
 
        # Desktop Environment
        ../../desktops/kde.nix  # Or gnome, niri, cosmic
