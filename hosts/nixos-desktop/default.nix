@@ -2,12 +2,11 @@
 
 {
   imports = [
-    # Base configuration (shared)
-    ../../base/core.nix
-    ../../base/security.nix
-    ../../base/audio.nix
-    ../../base/networking.nix
-    ../../base/printing.nix
+    # Universal base (every host, incl. WSL)
+    ../../base
+
+    # Physical machine profile (audio, NetworkManager, printing, fonts)
+    ../../profiles/physical.nix
 
     # User configuration
     ../../users/michael.nix
