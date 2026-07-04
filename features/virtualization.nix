@@ -15,6 +15,9 @@
   # Enable USB redirection for VMs (allows passing USB devices to guests)
   virtualisation.spiceUSBRedirection.enable = true;
 
+  # VM management requires libvirtd group membership
+  users.users.michael.extraGroups = [ "libvirtd" ];
+
   # Virtualization packages
   environment.systemPackages = with pkgs; [
     qemu              # Hypervisor - virtualizes hardware and runs VMs

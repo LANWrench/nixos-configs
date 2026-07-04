@@ -8,25 +8,18 @@ This guide walks through deploying this configuration to a fresh NixOS installat
 - Internet connection
 - Root access or sudo privileges
 
-## Quick Start (Same User/Setup)
-
-If the new machine is similar to your existing setup:
+## Quick Start
 
 ```bash
 # 1. Clone this repo
 git clone https://github.com/LANWrench/nixos-configs.git ~/nix-config
 cd ~/nix-config
 
-# 2. Copy hardware config
-sudo cp /etc/nixos/hardware-configuration.nix ~/nix-config/
+# 2. Create the host from the checklist below (host dir + one flake line)
 
-# 3. Create new host (or use nixos-desktop if similar)
-# Skip this if using existing host config
-
-# 4. Update flake.nix with hostname if needed
-
-# 5. Build
-sudo nixos-rebuild switch --flake ~/nix-config#nixos-desktop
+# 3. Build
+git add .   # flakes only see git-tracked files
+sudo nixos-rebuild switch --flake ~/nix-config#<hostname>
 ```
 
 ## Detailed Setup for New Host
@@ -48,11 +41,10 @@ sudo nixos-rebuild switch --flake ~/nix-config#nixos-desktop
 
 ### Step 2: Initial Boot Setup
 
-After rebooting into fresh system:
+After rebooting into the fresh system:
 
 ```bash
-# Ensure git is available (should be in base system)
-# If not:
+# Ensure git is available. If not:
 nix-shell -p git
 
 # Set up SSH keys for GitHub (if using SSH clone)
@@ -73,72 +65,36 @@ git clone https://github.com/LANWrench/nixos-configs.git ~/nix-config
 cd ~/nix-config
 ```
 
-### Step 4: Create Host Configuration
-
-#### Option A: Use Existing Host (Desktop → Desktop)
-
-If the new machine is similar to nixos-desktop:
+### Step 4: Create the Host Directory
 
 ```bash
-# Just copy the hardware config
-sudo cp /etc/nixos/hardware-configuration.nix ~/nix-config/
-
-# Edit hostname in hosts/nixos-desktop/configuration.nix
-nano hosts/nixos-desktop/configuration.nix
-# Change: networking.hostName = "nixos-desktop"; → your new hostname
-```
-
-#### Option B: Create New Host (e.g., Laptop)
-
-```bash
-# Create new host directory
 mkdir -p hosts/laptop
 
-# Copy desktop as template
-cp -r hosts/nixos-desktop/* hosts/laptop/
-
-# Copy hardware config from fresh install
+# Copy the GENERATED hardware config from the fresh install — this is
+# per-host and never shared between machines
 sudo cp /etc/nixos/hardware-configuration.nix hosts/laptop/
-
-# Edit host-specific settings
-nano hosts/laptop/configuration.nix
 ```
 
-**hosts/laptop/configuration.nix:**
-```nix
-{ config, pkgs, ... }:
+**hosts/laptop/default.nix** — the machine's full recipe:
 
-{
-  # Host-specific settings
-  networking.hostName = "laptop";  # ← Change this
-  time.timeZone = "America/Chicago";  # ← Adjust if needed
-
-  # Firewall ports for host-specific services
-  networking.firewall.allowedTCPPorts = [
-    # Add ports as needed
-  ];
-}
-```
-
-**Edit hosts/laptop/default.nix** - Choose features:
 ```nix
 { config, lib, pkgs, inputs, ... }:
 
 {
   imports = [
-    # Base (always import these)
-    ../../base/core.nix
-    ../../base/security.nix
-    ../../base/audio.nix
-    ../../base/networking.nix
-    ../../base/printing.nix
+    # Universal base (always — WSL-safe by construction)
+    ../../base
+
+    # Physical machine profile: audio, NetworkManager, printing, fonts
+    # (skip on WSL)
+    ../../profiles/physical.nix
 
     # User
     ../../users/michael.nix
 
     # Hardware
-    ../../hardware-configuration.nix
-    ./hardware.nix
+    ./hardware-configuration.nix   # generated — never hand-edit
+    ./hardware.nix                 # hand-written: GPU, boot, filesystems
     ./configuration.nix
 
     # Features (pick what you need)
@@ -153,11 +109,27 @@ nano hosts/laptop/configuration.nix
     ../../desktops/kde.nix  # Or gnome, niri, cosmic
   ];
 
-  system.stateVersion = "25.05";  # Match your NixOS version
+  system.stateVersion = "25.05";  # The release this machine was INSTALLED with
 }
 ```
 
-**Edit hosts/laptop/hardware.nix** - Adjust for laptop hardware:
+**hosts/laptop/configuration.nix** — hostname is set automatically by `mkHost`:
+
+```nix
+{ config, pkgs, ... }:
+
+{
+  time.timeZone = "America/Chicago";
+
+  # Firewall ports for host-specific services
+  networking.firewall.allowedTCPPorts = [
+    # Add ports as needed
+  ];
+}
+```
+
+**hosts/laptop/hardware.nix** — hand-written hardware config:
+
 ```nix
 { config, pkgs, ... }:
 
@@ -169,10 +141,10 @@ nano hosts/laptop/configuration.nix
       efi.canTouchEfiVariables = true;
     };
     kernelPackages = pkgs.linuxPackages_latest;
-    # Remove Nvidia kernel params if using AMD/Intel graphics
   };
 
-  # Graphics (adjust for your GPU)
+  # Graphics (adjust for your GPU — see hosts/nixos-desktop/hardware.nix
+  # for an Nvidia example)
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
@@ -196,62 +168,37 @@ nano hosts/laptop/configuration.nix
 }
 ```
 
-**Edit hosts/laptop/home.nix** - Customize packages:
+**hosts/laptop/home.nix** — the shared `home/` base provides shell, starship,
+neovim, git identity, and CLI tools; only list what is extra on this machine:
+
 ```nix
-# Copy from hosts/nixos-desktop/home.nix
-# Remove heavy gaming packages, adjust for laptop use
+{ config, pkgs, pkgs-stable, ... }:
+
+{
+  imports = [
+    ../../home                     # shared base — do not duplicate its contents
+    ../../desktops/home/kde.nix
+  ];
+
+  home.username = "michael";
+  home.homeDirectory = "/home/michael";
+  home.stateVersion = "25.05";     # match the system stateVersion
+
+  home.packages = with pkgs; [
+    # host-only packages
+  ];
+}
 ```
 
-### Step 5: Update flake.nix (If Adding New Host)
+### Step 5: Add the Host to flake.nix
 
-```bash
-nano flake.nix
-```
-
-Add new host configuration:
+One line — `lib/mkhost.nix` wires up home-manager, agenix, stylix, and
+pkgs-stable automatically:
 
 ```nix
 nixosConfigurations = {
-  nixos-desktop = nixpkgs.lib.nixosSystem {
-    # ... existing ...
-  };
-
-  # ADD THIS:
-  laptop = nixpkgs.lib.nixosSystem {
-    system = "x86_64-linux";
-    specialArgs = {
-      inherit inputs;
-      pkgs-stable = import inputs.nixpkgs-stable {
-        system = "x86_64-linux";
-        config.allowUnfree = true;
-      };
-    };
-    modules = [
-      { nixpkgs.config.allowUnfree = true; }
-      ./hosts/laptop  # ← Points to your new host
-
-      agenix.nixosModules.default
-
-      home-manager.nixosModules.home-manager
-      {
-        home-manager.backupFileExtension = "backup";
-        home-manager.useGlobalPkgs = true;
-        home-manager.useUserPackages = true;
-        home-manager.extraSpecialArgs = {
-          pkgs-stable = import inputs.nixpkgs-stable {
-            system = "x86_64-linux";
-            config.allowUnfree = true;
-          };
-        };
-        home-manager.users.michael = {
-          imports = [
-            ./hosts/laptop/home.nix
-            stylix.homeModules.stylix
-          ];
-        };
-      }
-    ];
-  };
+  nixos-desktop = mkHost { hostname = "nixos-desktop"; };
+  laptop        = mkHost { hostname = "laptop"; };   # ← ADD THIS
 };
 ```
 
@@ -271,15 +218,14 @@ sudo nano /etc/agenix/age.key
 sudo chmod 600 /etc/agenix/age.key
 ```
 
-**OR skip services that need secrets** by commenting them out in `hosts/<hostname>/default.nix`:
-```nix
-# ../../modules/services/searxng.nix  # Skip if no secrets
-```
+**OR skip services that need secrets** by not importing them in
+`hosts/<hostname>/default.nix`.
 
 ### Step 7: Build and Switch
 
 ```bash
 cd ~/nix-config
+git add .   # flakes only see git-tracked files
 
 # Test build first (doesn't activate)
 sudo nixos-rebuild build --flake .#laptop
@@ -296,7 +242,6 @@ sudo btrfs subvolume create /home/.snapshots
 
 # Set up Restic password
 sudo nano /root/restic-password.txt
-# Add a strong password
 sudo chmod 600 /root/restic-password.txt
 
 # Initialize Restic repository
@@ -311,75 +256,77 @@ sudo reboot
 
 ### WSL Instance
 
-For Windows Subsystem for Linux:
+For Windows Subsystem for Linux (see SCOPING.md §4.4 for details):
 
-```bash
-# Create minimal WSL host
-mkdir -p hosts/wsl
+1. Add the input to `flake.nix`:
+   ```nix
+   nixos-wsl.url = "github:nix-community/NixOS-WSL";
+   ```
+2. Create `profiles/wsl.nix`:
+   ```nix
+   { inputs, ... }:
+   {
+     imports = [ inputs.nixos-wsl.nixosModules.default ];
+     wsl.enable = true;
+     wsl.defaultUser = "michael";
+   }
+   ```
+3. Create the host — no physical profile, no desktop, no hardware files:
+   ```nix
+   # hosts/wsl/default.nix
+   { config, lib, pkgs, inputs, ... }:
+   {
+     imports = [
+       ../../base
+       ../../profiles/wsl.nix
+       ../../users/michael.nix
+       ./configuration.nix
 
-# Skip these features:
-# - btrfs-snapshots (WSL doesn't use BTRFS)
-# - backup (or configure differently)
-# - virtualization (can't run VMs in WSL)
-# - gaming
-# - No desktop environment
-```
+       ../../features/containers.nix   # containers work in WSL
+     ];
+     system.stateVersion = "25.05";
+   }
+   ```
+   ```nix
+   # hosts/wsl/home.nix
+   { config, pkgs, pkgs-stable, ... }:
+   {
+     imports = [ ../../home ];   # identical shell/prompt/CLI as every host
+     home.username = "michael";
+     home.homeDirectory = "/home/michael";
+     home.stateVersion = "25.05";
+   }
+   ```
+4. `wsl = mkHost { hostname = "wsl"; };` in flake.nix
 
-Example `hosts/wsl/default.nix`:
-```nix
-{
-  imports = [
-    ../../base/core.nix
-    ../../base/security.nix
-    ../../users/michael.nix
-    ./configuration.nix
-
-    # Containers work in WSL
-    ../../features/containers.nix
-  ];
-}
-```
+Skip: btrfs-snapshots, virtualization, gaming, backup (or configure differently).
 
 ### Different User
 
-If setting up for a different user:
-
 ```bash
-# Create new user config
 cp users/michael.nix users/yourname.nix
-
-# Edit:
-nano users/yourname.nix
+nano users/yourname.nix   # change username
 ```
+
+Update the import in the host's `default.nix`, and pass the user to mkHost:
 
 ```nix
-{ config, pkgs, ... }:
-
-{
-  users.users.yourname = {  # ← Change username
-    isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "cdrom" "libvirtd" ];
-    shell = pkgs.fish;
-  };
-
-  programs.fish.enable = true;
-}
+mkHost { hostname = "laptop"; user = "yourname"; }
 ```
-
-Update imports in host config and flake.nix to use new user.
 
 ## Troubleshooting
 
 ### Build Fails: "path does not exist"
+- Run `git add .` — flakes only see git-tracked files
 - Check all import paths in your host's `default.nix`
-- Ensure you copied `hardware-configuration.nix`
+- Ensure you copied `hardware-configuration.nix` into the host directory
 
 ### Build Fails: "option does not exist"
 - Comment out features you don't need
 - Check for hardware-specific options (Nvidia on AMD laptop)
 
 ### Secrets Error
-- Comment out services that need secrets
+- Don't import services that need secrets
 - Or copy age keys from existing system
 
 ### Git Tree is Dirty
@@ -394,7 +341,7 @@ After successful rebuild:
 - [ ] Desktop environment works
 - [ ] Network connection works
 - [ ] Audio works
-- [ ] User can login
+- [ ] User can login; shell is fish with starship prompt
 - [ ] SSH works (if configured)
 - [ ] Timers are running: `systemctl list-timers`
 - [ ] Snapshots created (if using): `sudo snapper list-configs`

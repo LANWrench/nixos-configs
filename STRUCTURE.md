@@ -1,272 +1,219 @@
 # NixOS Configuration Structure
 
-This NixOS configuration is designed to support multiple hosts (desktops, laptops, WSL instances) while sharing common base configuration.
+This NixOS configuration supports multiple hosts (desktops, laptops, WSL instances)
+from a shared, layered base. See [SCOPING.md](SCOPING.md) for the design rationale.
+
+## The Three Layers
+
+```
+┌───────────────────────────────────────────────────────────┐
+│ Layer 3: hosts/<name>/          "This machine"            │
+│   hardware, timezone, DE choice, feature picks,           │
+│   host-only packages                                      │
+├───────────────────────────────────────────────────────────┤
+│ Layer 2: profiles/, features/,  "Kinds of machines /      │
+│          desktops/               optional capabilities"   │
+├───────────────────────────────────────────────────────────┤
+│ Layer 1: base/ + home/          "Every machine, period"   │
+│   git, ripgrep, curl, SSH, fish, starship, fzf,           │
+│   tmux, neovim, git identity                              │
+└───────────────────────────────────────────────────────────┘
+```
+
+Lower layers never reference higher ones.
 
 ## Directory Structure
 
 ```
 nix-config/
-├── flake.nix                    # Main entry point for all hosts
+├── flake.nix                    # Inputs + one line per host
+├── lib/
+│   └── mkhost.nix               # Host builder (home-manager/agenix/pkgs-stable wiring)
 │
-├── base/                        # Shared configuration across ALL hosts
-│   ├── core.nix                 # Core packages, fonts, nix settings
-│   ├── security.nix             # SSH, polkit, FUSE
-│   ├── audio.nix                # PipeWire audio stack
-│   ├── networking.nix           # NetworkManager
-│   └── printing.nix             # CUPS and printer discovery
+├── base/                        # Layer 1 (system): EVERY host, incl. WSL
+│   ├── default.nix              # Aggregator — hosts import ../../base
+│   ├── core.nix                 # git, ripgrep, curl, vim, dbus
+│   ├── nix.nix                  # Nix settings (flakes)
+│   └── security.nix             # SSH daemon, polkit, FUSE
 │
-├── hosts/                       # Host-specific configurations
-│   └── nixos-desktop/           # Desktop host configuration
-│       ├── default.nix          # Main entry point (imports everything)
-│       ├── hardware.nix         # Nvidia GPU, boot, BTRFS config
-│       ├── configuration.nix    # Hostname, timezone, gaming programs
-│       └── home.nix             # User packages and programs for this host
+├── home/                        # Layer 1 (home-manager): EVERY host
+│   ├── default.nix              # Aggregator — host home.nix imports ../../home
+│   ├── shell.nix                # fish, bash
+│   ├── starship.nix             # Prompt
+│   ├── neovim.nix               # Neovim (+ neovim-config.lua)
+│   ├── git.nix                  # Git identity — defined ONCE
+│   └── cli.nix                  # tmux, fzf, btop, claude-code
 │
-├── users/                       # User account definitions
-│   └── michael.nix              # User account, groups, shell
+├── profiles/                    # Layer 2: bundles for kinds of machines
+│   └── physical.nix             # Audio, NetworkManager, printing, fonts, gparted
+│                                # (future: laptop.nix, wsl.nix)
 │
-├── features/                    # Optional system features
-│   ├── btrfs-snapshots.nix      # BTRFS snapshots (/home only)
-│   ├── backup.nix               # Restic backup service
-│   ├── auto-update.nix          # Weekly auto-updates
-│   ├── virtualization.nix       # libvirt/QEMU setup
+├── features/                    # Layer 2: à la carte system capabilities
+│   ├── btrfs-snapshots.nix      # Snapper snapshots of /home
+│   ├── backup.nix               # Restic off-site backup
+│   ├── auto-update.nix          # Weekly auto-updates + GC + store optimise
+│   ├── virtualization.nix       # libvirt/QEMU (adds libvirtd group)
 │   ├── containers.nix           # Podman/OCI containers
-│   └── gaming.nix               # Gaming programs (gamemode, gamescope)
+│   ├── gaming.nix               # gamemode, gamescope
+│   └── terminal-status-banner.nix  # nixos-health terminal banner
 │
-├── modules/                     # Smaller configs & services
-│   ├── neovim.nix               # Neovim configuration
-│   ├── starship.nix             # Starship prompt
-│   └── services/                # Optional services
-│       ├── searxng.nix          # SearXNG container
-│       └── caddy.nix            # Reverse proxy
+├── desktops/                    # Layer 2: DE pairs (system + home halves)
+│   ├── gnome.nix  kde.nix  niri.nix  cosmic.nix
+│   └── home/
+│       └── gnome.nix  kde.nix  niri.nix  cosmic.nix
 │
-├── desktops/                    # Desktop environment configs
-│   ├── gnome.nix                # GNOME system config
-│   ├── kde.nix                  # KDE system config
-│   ├── niri.nix                 # Niri system config
-│   ├── cosmic.nix               # COSMIC system config
-│   └── home/                    # User-level DE configs
-│       ├── gnome.nix
-│       ├── kde.nix
-│       ├── niri.nix
-│       └── cosmic.nix
+├── users/
+│   └── michael.nix              # Account, groups, shell
 │
-├── secrets/                     # agenix encrypted secrets
-│   ├── searxng-settings.age
-│   └── caddy-env.age
+├── modules/                     # Reusable system services
+│   ├── restic.nix  snapper.nix
+│   └── services/                # Optional services (searxng, caddy)
 │
-├── hardware-configuration.nix   # Generated hardware config
-├── configuration.nix            # DEPRECATED (kept as reference)
-└── home.nix                     # DEPRECATED (kept as reference)
+├── secrets/                     # agenix encrypted secrets (safe to commit)
+│
+└── hosts/                       # Layer 3: one directory per machine
+    └── nixos-desktop/
+        ├── default.nix              # The machine's full recipe (imports)
+        ├── hardware-configuration.nix  # Generated — never hand-edit
+        ├── hardware.nix             # Hand-written: Nvidia, boot, BTRFS
+        ├── configuration.nix        # Timezone, firewall ports
+        └── home.nix                 # Host-only packages + DE home module
+```
+
+## Where Does a New Thing Go?
+
+Ask: **"Would I want this on a WSL instance with no screen?"**
+
+```
+Need it on every machine incl. WSL?
+├── yes, CLI/user tool        → home/cli.nix
+├── yes, system tool/daemon   → base/core.nix
+├── only physical machines    → profiles/physical.nix
+├── part of an optional role  → features/<feature>.nix (create if new)
+└── only one machine          → hosts/<name>/home.nix or configuration.nix
 ```
 
 ## How to Add a New Host
 
-### Example: Adding a laptop configuration
-
-1. **Create host directory**:
+1. **Create the host directory** and copy the generated hardware config:
    ```bash
    mkdir -p hosts/laptop
+   sudo cp /etc/nixos/hardware-configuration.nix hosts/laptop/
    ```
 
-2. **Create `hosts/laptop/default.nix`**:
+2. **Create `hosts/laptop/default.nix`** — the machine's recipe:
    ```nix
    { config, lib, pkgs, inputs, ... }:
 
    {
      imports = [
-       # Base configuration (shared)
-       ../../base/core.nix
-       ../../base/security.nix
-       ../../base/audio.nix
-       ../../base/networking.nix
-       ../../base/printing.nix
-
-       # User configuration
+       ../../base                     # Universal base (always)
+       ../../profiles/physical.nix    # Real hardware (skip on WSL)
        ../../users/michael.nix
 
-       # Hardware configuration
-       ../../hardware-configuration.nix
-       ./hardware.nix
-
-       # Host-specific configuration
+       ./hardware-configuration.nix
+       ./hardware.nix                 # GPU/boot config (create as needed)
        ./configuration.nix
 
-       # Choose which features you need
-       ../../features/btrfs-snapshots.nix  # Optional: local snapshots
-       ../../features/backup.nix           # Optional: restic backups
-       # Skip heavy features for laptop:
-       # ../../features/virtualization.nix  # Too resource-intensive
-       # ../../features/gaming.nix          # Not needed on laptop
+       # Features — pick what this machine needs
+       ../../features/btrfs-snapshots.nix
+       ../../features/backup.nix
 
-       # Desktop Environment
-       ../../desktops/kde.nix  # Or gnome, niri, cosmic
+       # Desktop environment
+       ../../desktops/kde.nix         # Or gnome, niri, cosmic
      ];
 
-     system.stateVersion = "25.05";
+     system.stateVersion = "25.05";   # The release this machine was INSTALLED with
    }
    ```
 
-3. **Create `hosts/laptop/hardware.nix`**:
-   - Add laptop-specific hardware config (AMD GPU, power management, etc.)
-
-4. **Create `hosts/laptop/configuration.nix`**:
+3. **Create `hosts/laptop/configuration.nix`** (hostname comes from mkHost):
    ```nix
    { config, pkgs, ... }:
 
    {
-     networking.hostName = "laptop";
      time.timeZone = "America/Chicago";
-
-     # Laptop-specific settings
-     services.tlp.enable = true;  # Battery optimization
-     # Add other laptop-specific config
+     # laptop extras, e.g. services.tlp.enable = true;
    }
    ```
 
-5. **Create `hosts/laptop/home.nix`**:
-   - Copy from nixos-desktop/home.nix and customize packages
-
-6. **Update `flake.nix`**:
+4. **Create `hosts/laptop/home.nix`**:
    ```nix
-   nixosConfigurations = {
-     nixos-desktop = nixpkgs.lib.nixosSystem { ... };
+   { config, pkgs, pkgs-stable, ... }:
 
-     laptop = nixpkgs.lib.nixosSystem {
-       system = "x86_64-linux";
-       specialArgs = {
-         inherit inputs;
-         pkgs-stable = import inputs.nixpkgs-stable {
-           system = "x86_64-linux";
-           config.allowUnfree = true;
-         };
-       };
-       modules = [
-         { nixpkgs.config.allowUnfree = true; }
-         ./hosts/laptop
+   {
+     imports = [
+       ../../home                     # Shared shell/prompt/CLI base
+       ../../desktops/home/kde.nix
+     ];
 
-         agenix.nixosModules.default
+     home.username = "michael";
+     home.homeDirectory = "/home/michael";
+     home.stateVersion = "25.05";
 
-         home-manager.nixosModules.home-manager
-         {
-           home-manager.backupFileExtension = "backup";
-           home-manager.useGlobalPkgs = true;
-           home-manager.useUserPackages = true;
-           home-manager.extraSpecialArgs = {
-             pkgs-stable = import inputs.nixpkgs-stable {
-               system = "x86_64-linux";
-               config.allowUnfree = true;
-             };
-           };
-           home-manager.users.michael = {
-             imports = [
-               ./hosts/laptop/home.nix
-               stylix.homeModules.stylix
-             ];
-           };
-         }
-       ];
-     };
+     home.packages = with pkgs; [
+       # host-only packages
+     ];
    }
    ```
 
-7. **Build the new host**:
+5. **Add one line to `flake.nix`**:
+   ```nix
+   laptop = mkHost { hostname = "laptop"; };
+   ```
+
+6. **Build**:
    ```bash
+   git add .   # flakes only see tracked files
    sudo nixos-rebuild switch --flake .#laptop
    ```
 
-## Configuration Guidelines
+## How to Add a WSL Host
 
-### What Goes in `base/`?
-- Configuration shared by **ALL** hosts
-- Core system packages (vim, git, curl)
-- Common services (SSH, audio, printing)
-- Universal settings that every system needs
-
-### What Goes in `hosts/<hostname>/`?
-- Host-specific settings (hostname, timezone)
-- Hardware configuration (GPU, CPU optimizations)
-- Desktop environment choice
-- Host-specific packages and services
-- Firewall rules specific to that host
-
-### What Goes in `users/`?
-- User account definitions
-- User groups
-- Shell configuration
-- Settings that follow the user across hosts
-
-### What Goes in `features/`?
-- Big optional system features (VMs, containers, gaming, backups)
-- Features that significantly impact the system
-- Features that hosts may or may not want
-
-### What Goes in `modules/`?
-- Smaller user-level configurations (neovim, starship)
-- Optional services (searxng, caddy)
-- Development tool configurations
+Same as above, but:
+- Do NOT import `profiles/physical.nix`, any `desktops/*`, or hardware files
+- Add the `nixos-wsl` input to the flake and create a `profiles/wsl.nix` with
+  `wsl.enable = true;` (see SCOPING.md §4.4)
+- `hosts/wsl/home.nix` imports only `../../home` — same shell, prompt, and CLI
+  tooling as every other machine, for free
 
 ## Switching Desktop Environments
 
-To change desktop environments for a host, edit `hosts/<hostname>/default.nix`:
-
-```nix
-# Change from:
-../../desktops/gnome.nix
-
-# To:
-../../desktops/kde.nix
-```
-
-Also update the home configuration in `hosts/<hostname>/home.nix`:
-
-```nix
-# Change from:
-../../desktops/home/gnome.nix
-
-# To:
-../../desktops/home/kde.nix
-```
-
-## WSL Support
-
-For WSL instances, create `hosts/wsl/` with:
-- No desktop environment imports
-- WSL-specific kernel and systemd settings
-- Lightweight package selection
-- Windows interop configuration
+Change two imports for the host:
+- `hosts/<name>/default.nix`: `../../desktops/gnome.nix` → `../../desktops/kde.nix`
+- `hosts/<name>/home.nix`: `../../desktops/home/gnome.nix` → `../../desktops/home/kde.nix`
 
 ## Maintenance
 
-### Updating the system
 ```bash
-# Update flake inputs
+# Update flake inputs, test, then commit the lockfile
 nix flake update
+sudo nixos-rebuild test --flake .#nixos-desktop
+git commit -m "flake update" flake.lock
 
-# Rebuild
-sudo nixos-rebuild switch --flake .#nixos-desktop
-```
+# Apply config changes
+sudo nixos-rebuild test --flake .#nixos-desktop     # try without boot entry
+sudo nixos-rebuild switch --flake .#nixos-desktop   # activate + boot default
 
-### Cleaning old generations
-```bash
-# Delete old generations older than 30 days
+# Clean old generations (also automatic weekly via features/auto-update.nix)
 sudo nix-collect-garbage --delete-older-than 30d
 ```
 
-### Testing changes
-```bash
-# Test without activating
-sudo nixos-rebuild test --flake .#nixos-desktop
+### Workflow across machines
 
-# Build and test but don't set as boot default
-sudo nixos-rebuild test --flake .#nixos-desktop
-```
+The GitHub repo is the source of truth. `flake.lock` is always committed, so every
+machine builds identical package versions. Day-to-day:
 
-## Benefits of This Structure
+1. Edit on any machine → `nixos-rebuild test` → commit → push
+2. Other machines: `git pull && sudo nixos-rebuild switch --flake .#<host>`
 
-1. **Shared Base**: Common configuration in one place
-2. **Easy Multi-Host**: Add new hosts by creating a new directory
-3. **No Duplication**: Reusable modules prevent copy-paste
-4. **Clear Separation**: Host-specific vs shared is obvious
-5. **Easy Desktop Switching**: Change DE by updating imports
-6. **Maintainable**: Each file has a single, clear purpose
+## Conventions
+
+- `hardware-configuration.nix` is generated by `nixos-generate-config` — never hand-edit.
+  Hand-written hardware config (GPU drivers, boot) goes in `hardware.nix`.
+- `stateVersion` (system and home) is frozen at each machine's install-time release.
+  Do not bump it when updating.
+- Features are never imported by aggregators — every host opts in explicitly, so a
+  host's full recipe is readable in its `default.nix`.
+- Features are self-contained: a feature adds its own packages, services, and user
+  groups (e.g. `virtualization.nix` adds `libvirtd`).

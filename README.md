@@ -1,6 +1,8 @@
 # NixOS Configuration
 
-Multi-host NixOS configuration using flakes with shared base configuration.
+Multi-host NixOS configuration using flakes, built in three layers: a universal
+base (every machine, including WSL), profiles/features for kinds of machines and
+optional capabilities, and thin per-host directories.
 
 ## Quick Start
 
@@ -15,7 +17,7 @@ sudo nixos-rebuild switch --flake .#nixos-desktop
 
 ## Hosts
 
-- **nixos-desktop** - Main desktop with Nvidia GPU, GNOME, gaming setup
+- **nixos-desktop** - Main desktop with Nvidia GPU, COSMIC, gaming setup
 - **laptop** - (future) Laptop configuration
 - **wsl** - (future) WSL instance
 
@@ -23,159 +25,92 @@ sudo nixos-rebuild switch --flake .#nixos-desktop
 
 ```
 nix-config/
-├── flake.nix                    # Flake entry point
-├── base/                        # Shared across all hosts
-│   ├── core.nix                 # Core packages, fonts
-│   ├── security.nix             # SSH, polkit
-│   ├── audio.nix                # PipeWire
-│   ├── networking.nix           # NetworkManager
-│   └── printing.nix             # CUPS
-├── features/                    # Optional system features
-│   ├── btrfs-snapshots.nix      # Local /home snapshots
-│   ├── backup.nix               # Restic off-site backup
-│   ├── auto-update.nix          # Weekly updates
-│   ├── virtualization.nix       # VMs (libvirt/QEMU)
-│   ├── containers.nix           # Podman/OCI
-│   └── gaming.nix               # Gaming programs
-├── hosts/                       # Per-host configurations
-│   └── nixos-desktop/
-│       ├── default.nix          # Host entry point
-│       ├── hardware.nix         # Nvidia GPU, BTRFS
-│       ├── configuration.nix    # Hostname, timezone
-│       └── home.nix             # User packages
-├── users/
-│   └── michael.nix              # User account definition
-├── modules/
-│   ├── neovim.nix
-│   ├── starship.nix
-│   └── services/
-│       ├── searxng.nix
-│       └── caddy.nix
-├── desktops/
-│   ├── gnome.nix                # System-level DE config
-│   ├── kde.nix
-│   ├── niri.nix
-│   ├── cosmic.nix
-│   └── home/                    # User-level DE config
-│       ├── gnome.nix
-│       ├── kde.nix
-│       ├── niri.nix
-│       └── cosmic.nix
-└── secrets/                     # agenix encrypted secrets
+├── flake.nix                # Inputs + one line per host
+├── lib/mkhost.nix           # Host builder (HM/agenix/pkgs-stable wiring)
+├── base/                    # System base: EVERY host, incl. WSL
+├── home/                    # Home-manager base: shell, starship, neovim,
+│                            #   git identity, CLI tools — every host
+├── profiles/
+│   └── physical.nix         # Audio, NetworkManager, printing, fonts
+├── features/                # Opt-in: gaming, backup, virtualization,
+│                            #   containers, snapshots, auto-update, banner
+├── desktops/                # DE configs (system + home halves)
+├── users/michael.nix        # User account definition
+├── modules/                 # Reusable services (restic, snapper, searxng, caddy)
+├── secrets/                 # agenix encrypted secrets
+└── hosts/                   # One directory per machine
+    └── nixos-desktop/       # default.nix, hardware*, configuration.nix, home.nix
 ```
 
-See [STRUCTURE.md](STRUCTURE.md) for detailed documentation.
-
-## Backup Strategy
-
-**Fast Recovery (Local):**
-- Snapper hourly snapshots of `/home` only
-- No root snapshots (prevents accumulation)
-- Access at `/home/.snapshots/`
-
-**Disaster Recovery (Off-site):**
-- Restic daily backups
-- Currently backs up to `/backup` (configure off-site!)
-- See [MIGRATION-BACKUP-CLEANUP.md](MIGRATION-BACKUP-CLEANUP.md)
+See [STRUCTURE.md](STRUCTURE.md) for detailed documentation and
+[SCOPING.md](SCOPING.md) for the design rationale.
 
 ## Adding a New Host
 
-1. Create host directory:
-   ```bash
-   mkdir -p hosts/laptop
-   ```
-
-2. Copy and customize from `hosts/nixos-desktop/`:
-   - `default.nix` - Import base + features you need
-   - `hardware.nix` - Hardware-specific config
-   - `configuration.nix` - Hostname, timezone
-   - `home.nix` - User packages
-
-3. Add to `flake.nix`:
+1. `mkdir hosts/<name>` and copy `/etc/nixos/hardware-configuration.nix` into it
+2. Write `default.nix` (imports: base + profile + features + DE),
+   `configuration.nix` (timezone), and `home.nix` (imports `../../home` + extras)
+3. Add one line to `flake.nix`:
    ```nix
-   nixosConfigurations = {
-     nixos-desktop = ...;
-     laptop = nixpkgs.lib.nixosSystem { ... };
-   };
+   <name> = mkHost { hostname = "<name>"; };
    ```
+4. `git add . && sudo nixos-rebuild switch --flake .#<name>`
 
-4. Build:
-   ```bash
-   sudo nixos-rebuild switch --flake .#laptop
-   ```
+Full walkthrough: [SETUP-NEW-HOST.md](SETUP-NEW-HOST.md)
 
 ## Switching Desktop Environments
 
-Edit `hosts/<hostname>/default.nix`:
+Change two imports for the host, then rebuild:
 
-```nix
-# Change from:
-../../desktops/gnome.nix
-
-# To:
-../../desktops/kde.nix
-```
-
-Also update `hosts/<hostname>/home.nix`:
-
-```nix
-# Change from:
-../../desktops/home/gnome.nix
-
-# To:
-../../desktops/home/kde.nix
-```
-
-Then rebuild:
-```bash
-sudo nixos-rebuild switch --flake .#nixos-desktop
-```
+- `hosts/<name>/default.nix`: `../../desktops/gnome.nix` → `../../desktops/kde.nix`
+- `hosts/<name>/home.nix`: `../../desktops/home/gnome.nix` → `../../desktops/home/kde.nix`
 
 ## Maintenance
 
 ### Update System
 ```bash
-# Update flake inputs
 nix flake update
-
-# Rebuild
+sudo nixos-rebuild test --flake .#nixos-desktop   # verify first
 sudo nixos-rebuild switch --flake .#nixos-desktop
+git commit -m "flake update" flake.lock && git push
 ```
+
+`flake.lock` is always committed — it is what keeps every machine on identical
+package versions. Other machines just `git pull` and rebuild.
 
 ### Clean Old Generations
 ```bash
-# Delete generations older than 30 days
+# Also runs automatically weekly via features/auto-update.nix
 sudo nix-collect-garbage --delete-older-than 30d
-
-# Optimize nix store
-nix-store --optimise
 ```
 
 ### Check Backups
 ```bash
-# List snapshots
-sudo snapper -c home list
-
-# List restic backups
-sudo restic -r /backup snapshots
-
-# Check backup logs
-journalctl -u restic-backups-fullMachine.service -n 100
+sudo snapper -c home list                                   # local snapshots
+sudo restic -r /backup snapshots                            # restic backups
+journalctl -u restic-backups-fullMachine.service -n 100     # backup logs
 ```
+
+## Backup Strategy
+
+**Fast Recovery (Local):** Snapper hourly snapshots of `/home` only, at
+`/home/.snapshots/` (`features/btrfs-snapshots.nix`).
+
+**Disaster Recovery (Off-site):** Restic daily backups via `features/backup.nix`
+(currently to `/backup` — configure off-site!).
 
 ## Automatic Updates
 
 Weekly automatic updates are enabled via `features/auto-update.nix`:
-- Updates all flake inputs
-- Rebuilds system
-- Runs weekly with randomized delay
+- Updates all flake inputs, rebuilds, commits the lockfile
+- Weekly garbage collection and store optimisation
 - Check status: `systemctl status nixos-upgrade.timer`
 
 ## Documentation
 
-- **[SETUP-NEW-HOST.md](SETUP-NEW-HOST.md)** - Complete guide for deploying to a fresh NixOS system
+- [SETUP-NEW-HOST.md](SETUP-NEW-HOST.md) - Complete guide for deploying to a fresh NixOS system
 - [STRUCTURE.md](STRUCTURE.md) - Detailed structure documentation
-- [MIGRATION-BACKUP-CLEANUP.md](MIGRATION-BACKUP-CLEANUP.md) - Backup strategy details
+- [SCOPING.md](SCOPING.md) - Design rationale and migration plan
 
 ## License
 
