@@ -8,7 +8,7 @@
   services.displayManager = {
     sddm = {
       enable = true;
-      wayland.enable = false;  # Use X11 for NVIDIA compatibility
+      wayland.enable = true;
     };
     autoLogin = {
       enable = false;

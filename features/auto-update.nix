@@ -17,6 +17,11 @@
     flake = "/home/michael/nix-config";
     flags = [
       "-L" # print build logs
+      "--update-input" "nixpkgs"
+      "--update-input" "home-manager"
+      "--update-input" "stylix"
+      "--update-input" "agenix"
+      "--commit-lock-file"
     ];
     dates = "weekly";
     randomizedDelaySec = "45min";
@@ -28,6 +33,9 @@
   environment.etc."gitconfig".text = ''
     [safe]
         directory = /home/michael/nix-config
+    [user]
+        name = NixOS Auto-Update
+        email = nixos-upgrade@nixos-desktop
   '';
 
   # Automatic garbage collection (runs as nix-gc.service)

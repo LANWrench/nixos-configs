@@ -1,4 +1,9 @@
-{ config, pkgs, pkgs-stable, ... }:
+{
+  config,
+  pkgs,
+  pkgs-stable,
+  ...
+}:
 
 # ==================================================================================
 # DEPRECATED: This file is no longer used by flake.nix
@@ -31,8 +36,8 @@
   home.stateVersion = "25.05";
   home.sessionPath = [
     "$HOME/.local/bin"
-  ]; 
-  
+  ];
+
   xdg.enable = true;
 
   # Stylix theming - disabled for GNOME desktop
@@ -41,9 +46,9 @@
     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
     targets = {
       # neovim.enable = false;
-      kde.enable = false;  # Disable Stylix for KDE - use native KDE theming
-      gnome.enable = false;  # Disable Stylix for GNOME - use native GNOME theming
-      gtk.enable = false;  # Disable GTK theming
+      kde.enable = false; # Disable Stylix for KDE - use native KDE theming
+      gnome.enable = false; # Disable Stylix for GNOME - use native GNOME theming
+      gtk.enable = false; # Disable GTK theming
       # Keep these disabled when using GNOME to avoid conflicts
     };
     fonts = {
@@ -79,8 +84,6 @@
     peazip
     pkgs-stable.kdePackages.k3b
     cryptomator
-    megasync
-    pcloud
 
     # Productivity
     logseq

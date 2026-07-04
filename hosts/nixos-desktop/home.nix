@@ -7,7 +7,7 @@
     ../../modules/starship.nix
 
     # Desktop environment (host-specific choice)
-    ../../desktops/home/gnome.nix
+    ../../desktops/home/cosmic.nix
   ];
 
   # Home Manager configuration
@@ -54,20 +54,17 @@
   home.packages = with pkgs; [
     # Browsers and communication
     brave
-    discord
-    mailspring
+    pkgs-stable.discord      # Use stable to avoid Electron build issues
+    pkgs-stable.mailspring   # Use stable to avoid Electron build issues
 
     # File managers and utilities
-    nemo
     peazip
     pkgs-stable.kdePackages.k3b
     cryptomator
-    megasync
-    pcloud
 
     # Productivity
-    logseq
-    obsidian
+    pkgs-stable.logseq       # Use stable to avoid Electron build issues
+    pkgs-stable.obsidian     # Use stable to avoid Electron build issues
 
     # Media
     vlc
@@ -79,12 +76,11 @@
     pkgs-stable.mudlet
     lutris
     r2modman
-    nexusmods-app-unfree
     heroic
     moonlight-qt
 
     # AI
-    lmstudio
+    pkgs-stable.lmstudio     # Use stable to avoid Electron build issues
 
     # Utilities
     localsend
@@ -95,6 +91,9 @@
     # CLI Tools
     (btop.override { cudaSupport = true; })
 
+    # Container tools
+    distrobox
+
     # Infrastructure tools
     azure-storage-azcopy
     terraform
@@ -103,7 +102,6 @@
     kubectl
     azure-cli
     dotnet-sdk
-    dotnet-runtime
 
     # BTRFS Tools
     btrfs-assistant
@@ -125,12 +123,19 @@
   programs.bash = {
     enable = true;
     shellAliases = { };
+    initExtra = ''
+      # Show system health status on new terminal
+      nixos-health
+    '';
   };
 
   programs.fish = {
     enable = true;
     shellInit = ''
       set fish_greeting
+
+      # Show system health status on new terminal
+      nixos-health
     '';
   };
 
@@ -145,9 +150,9 @@
 
   programs.git = {
     enable = true;
-    userName = "Michael";
-    userEmail = "5728708+LANWrench@users.noreply.github.com";
-    extraConfig = {
+    settings = {
+      user.name = "Michael";
+      user.email = "5728708+LANWrench@users.noreply.github.com";
       init.defaultBranch = "main";
     };
   };

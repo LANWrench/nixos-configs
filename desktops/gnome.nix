@@ -6,13 +6,8 @@
 
   # Display Manager (GDM - GNOME's native display manager)
   services.displayManager = {
-    gdm = {
-      enable = true;
-      wayland = true;
-    };
-    autoLogin = {
-      enable = false;
-    };
+    gdm.enable = true;
+    autoLogin.enable = false;
   };
 
   # Enable X server with nvidia drivers

@@ -14,4 +14,18 @@
   home.file.".config/cosmic/com.system76.CosmicIdle/v1/screen_off_time".text = "None";
   home.file.".config/cosmic/com.system76.CosmicIdle/v1/suspend_on_ac_time".text = "None";
 
+  home.file.".config/cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom".text = ''
+    {
+        (modifiers: [Super], key: "Print"): Disable,
+        (modifiers: [Super], key: "t"): Disable,
+        (modifiers: [], key: "Print"): System(Screenshot),
+        (modifiers: [Super], key: "Return"): System(Terminal),
+        (modifiers: [Super], key: "F11"): Disable,
+        (modifiers: [Super], key: "f"): Fullscreen,
+        (modifiers: [Super], key: "e"): System(HomeFolder),
+        (modifiers: [Super], key: "Tab"): NextWorkspace,
+        (modifiers: [Super, Shift], key: "Tab"): PreviousWorkspace,
+    }
+  '';
+
 }

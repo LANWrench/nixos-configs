@@ -18,7 +18,17 @@
       "Bash(sudo btrfs subvolume:*)",
       "Bash(test:*)",
       "Bash(journalctl:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(nix search:*)",
+      "Read(//etc/fish/**)",
+      "Read(//nix/store/**)",
+      "Bash(nixos-health)",
+      "Bash(echo \"[exit: $?] \\(empty output means no issues shown in minimal mode\\)\")",
+      "Bash(systemctl list-units *)",
+      "Bash(systemctl show *)",
+      "Bash(snapper -c home list)",
+      "Bash(nixos-health *)",
+      "Read(//home/michael/.config/**)"
     ]
   }
 }
