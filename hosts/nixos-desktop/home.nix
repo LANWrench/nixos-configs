@@ -2,9 +2,8 @@
 
 {
   imports = [
-    # Home modules
-    ../../modules/neovim.nix
-    ../../modules/starship.nix
+    # Shared home base (shell, starship, neovim, git, CLI tools)
+    ../../home
 
     # Desktop environment (host-specific choice)
     ../../desktops/home/cosmic.nix
@@ -14,11 +13,6 @@
   home.username = "michael";
   home.homeDirectory = "/home/michael";
   home.stateVersion = "25.05";
-  home.sessionPath = [
-    "$HOME/.local/bin"
-  ];
-
-  xdg.enable = true;
 
   # Stylix theming - disabled for GNOME desktop
   stylix = {
@@ -88,9 +82,6 @@
     teamviewer
     qbittorrent
 
-    # CLI Tools
-    (btop.override { cudaSupport = true; })
-
     # Container tools
     distrobox
 
@@ -114,50 +105,21 @@
     reversal-icon-theme
   ];
 
+  # CUDA-enabled btop on this Nvidia host (base enables programs.btop)
+  programs.btop.package = pkgs.btop.override { cudaSupport = true; };
+
+  # Show system health status on new terminals (features/terminal-status-banner.nix)
+  programs.bash.initExtra = ''
+    nixos-health
+  '';
+  programs.fish.shellInit = ''
+    nixos-health
+  '';
+
   # Services
   services.podman.enable = true;
 
   # Programs
-  programs.home-manager.enable = true;
-
-  programs.bash = {
-    enable = true;
-    shellAliases = { };
-    initExtra = ''
-      # Show system health status on new terminal
-      nixos-health
-    '';
-  };
-
-  programs.fish = {
-    enable = true;
-    shellInit = ''
-      set fish_greeting
-
-      # Show system health status on new terminal
-      nixos-health
-    '';
-  };
-
-  programs.starship.enable = true;
-  programs.tmux.enable = true;
-
-  programs.fzf = {
-    enable = true;
-    enableBashIntegration = true;
-    enableFishIntegration = true;
-  };
-
-  programs.git = {
-    enable = true;
-    settings = {
-      user.name = "Michael";
-      user.email = "5728708+LANWrench@users.noreply.github.com";
-      init.defaultBranch = "main";
-    };
-  };
-
-  programs.claude-code.enable = true;
   programs.onlyoffice.enable = true;
 
   programs.obs-studio = {
