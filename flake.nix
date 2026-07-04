@@ -21,46 +21,16 @@
     };
   };
 
-  outputs = inputs@{ nixpkgs, home-manager, stylix, agenix, ... }: {
-    nixosConfigurations = {
-      # Desktop host configuration
-      # Add new hosts here (laptop, wsl, etc.) with their own host directories
-      nixos-desktop = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = {
-          inherit inputs;
-          pkgs-stable = import inputs.nixpkgs-stable {
-            system = "x86_64-linux";
-            config.allowUnfree = true;
-          };
-        };
-        modules = [
-          { nixpkgs.config.allowUnfree = true; }
-          ./hosts/nixos-desktop
-
-          agenix.nixosModules.default
-
-          # Integrate home-manager as a NixOS module
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.backupFileExtension = "backup";
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = {
-              pkgs-stable = import inputs.nixpkgs-stable {
-                system = "x86_64-linux";
-                config.allowUnfree = true;
-              };
-            };
-            home-manager.users.michael = {
-              imports = [
-                ./hosts/nixos-desktop/home.nix
-                stylix.homeModules.stylix
-              ];
-            };
-          }
-        ];
+  outputs = inputs:
+    let
+      mkHost = import ./lib/mkhost.nix { inherit inputs; };
+    in
+    {
+      nixosConfigurations = {
+        nixos-desktop = mkHost { hostname = "nixos-desktop"; };
+        # Add new hosts as one line each, e.g.:
+        # laptop = mkHost { hostname = "laptop"; };
+        # wsl    = mkHost { hostname = "wsl"; };
       };
     };
-  };
 }
