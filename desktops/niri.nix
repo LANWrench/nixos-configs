@@ -17,10 +17,8 @@
       user = "michael";
     };
 
-    gdm = {
-      enable = true;
-      wayland = true;
-    };
+    # GDM is Wayland-only as of GNOME 50; the old `wayland` option was removed
+    gdm.enable = true;
   };
 
   # Enable X server with nvidia drivers (needed for some compatibility)

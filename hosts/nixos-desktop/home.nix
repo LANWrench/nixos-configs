@@ -14,35 +14,8 @@
   home.homeDirectory = "/home/michael";
   home.stateVersion = "25.05";
 
-  # Stylix theming - disabled for GNOME desktop
-  stylix = {
-    enable = false;
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
-    targets = {
-      kde.enable = false;
-      gnome.enable = false;
-      gtk.enable = false;
-    };
-    fonts = {
-      monospace = {
-        package = pkgs.nerd-fonts.meslo-lg;
-        name = "MesloLGS Nerd Font Mono";
-      };
-      sansSerif = {
-        package = pkgs.dejavu_fonts;
-        name = "DejaVu Sans";
-      };
-      sizes = {
-        terminal = 12;
-        popups = 18;
-      };
-    };
-    cursor = {
-      package = pkgs.hackneyed;
-      name = "Hackneyed";
-      size = 36;
-    };
-  };
+  # Theming: COSMIC themes itself. Stylix theming for the niri desktop
+  # lives in desktops/home/niri.nix and activates only when niri is imported.
 
   # Host-specific packages
   home.packages = with pkgs; [
