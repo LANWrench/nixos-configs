@@ -1,24 +1,11 @@
 { config, pkgs, ... }:
 
 {
-  # Polkit authentication agent
-  systemd.user.services.polkit-mate = {
-    Unit = {
-      Description = "MATE Polkit Authentication Agent";
-      Wants = [ "graphical-session.target" ];
-      After = [ "graphical-session.target" ];
-    };
-    Install = {
-      WantedBy = [ "graphical-session.target" ];
-    };
-    Service = {
-      Type = "simple";
-      ExecStart = "${pkgs.mate.mate-polkit}/libexec/polkit-mate-authentication-agent-1";
-      Restart = "on-failure";
-      RestartSec = 1;
-      TimeoutStopSec = 10;
-    };
-  };
+  # Shell UI (notifications, lock screen, idle management, launcher, polkit
+  # auth prompts, OSD) is provided by Dank Material Shell — see
+  # desktops/niri.nix. Do not add standalone daemons for these here: a second
+  # notification daemon races DMS for the org.freedesktop.Notifications D-Bus
+  # name, and a second polkit agent causes doubled auth prompts.
 
   # Cohesive dark theming for the niri session (catppuccin-mocha via Stylix).
   # Scoped here so COSMIC (which themes itself) is untouched — this module is
@@ -59,9 +46,6 @@
       };
       "font-packages".enable = true;          # install the font packages declared above
       foot.enable = true;                     # merges cleanly with existing pad setting
-      fuzzel.enable = true;
-      mako.enable = true;
-      rofi.enable = true;
     };
   };
 
@@ -77,11 +61,9 @@
   };
 
   # Niri-specific user services
-  services.mako.enable = true;      # Notification daemon
   services.kanshi.enable = true;    # Display configuration
 
-  # Niri-specific programs
-  programs.fuzzel.enable = true;    # Application launcher
+  # Terminal (Stylix-themed)
   programs.foot = {
     enable = true;
     settings = {
@@ -90,10 +72,4 @@
       };
     };
   };
-  programs.rofi.enable = true;      # Alternative launcher
-
-  # Niri-specific home packages
-  home.packages = with pkgs; [
-    mate.mate-polkit
-  ];
 }

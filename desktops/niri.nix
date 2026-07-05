@@ -10,15 +10,11 @@
     systemd.enable = true;  # Auto-start via systemd
   };
 
-  # Display Manager (GDM with Wayland support)
-  services.displayManager = {
-    autoLogin = {
-      enable = false;
-      user = "michael";
-    };
-
-    # GDM is Wayland-only as of GNOME 50; the old `wayland` option was removed
-    gdm.enable = true;
+  # DMS Material greeter (greetd-based) — matches the DMS shell for a
+  # cohesive login screen. Rollback: previous generation from boot menu.
+  services.displayManager.dms-greeter = {
+    enable = true;
+    compositor.name = "niri";
   };
 
   # Enable X server with nvidia drivers (needed for some compatibility)
@@ -43,18 +39,19 @@
     };
   };
 
-  # Niri-specific system packages
+  # Niri-specific system packages.
+  # NOTE: DMS provides notifications, lock screen, idle management, launcher,
+  # and the polkit agent — do not add mako/swaylock/swayidle/fuzzel here
+  # (a second notification daemon conflicts on the D-Bus name).
   environment.systemPackages = with pkgs; [
-    alacritty       # Terminal emulator
-    swaylock        # Screen locker
-    mako            # Notification daemon
-    swayidle        # Idle management
     xwayland-satellite  # XWayland support for legacy apps
   ];
 
   # Services needed for Niri
   services.gnome.gnome-keyring.enable = true;
-  security.pam.services.gdm.enableGnomeKeyring = true;
+  # Unlock the keyring with the login password at the greetd (DMS greeter)
+  # login — without this a stray "unlock keyring" dialog appears after login
+  security.pam.services.greetd.enableGnomeKeyring = true;
   programs.dconf.enable = true;
 
   # Enable common services for desktop
