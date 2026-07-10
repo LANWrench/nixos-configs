@@ -6,7 +6,7 @@
     ../../home
 
     # Desktop environment (host-specific choice)
-    ../../desktops/home/cosmic.nix
+    ../../desktops/home/niri.nix
   ];
 
   # Home Manager configuration
@@ -85,7 +85,7 @@
   programs.bash.initExtra = ''
     nixos-health
   '';
-  programs.fish.shellInit = ''
+  programs.fish.interactiveShellInit = ''
     nixos-health
   '';
 

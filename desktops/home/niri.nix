@@ -12,8 +12,8 @@
   # only imported when the host selects the niri desktop.
   stylix = {
     enable = true;
-    autoEnable = false;          # allowlist targets; don't touch neovim/fish/btop/etc.
-    polarity = "dark";           # default is "either"; needed for foot/qt dark variants
+    autoEnable = false; # allowlist targets; don't touch neovim/fish/btop/etc.
+    polarity = "dark"; # default is "either"; needed for foot/qt dark variants
     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
 
     fonts = {
@@ -28,24 +28,24 @@
       sizes = {
         terminal = 12;
         popups = 18;
-        applications = 12;       # gtk.font + qtct font size; keeps portal dialogs sane
+        applications = 12; # gtk.font + qtct font size; keeps portal dialogs sane
       };
     };
 
     cursor = {
-      package = pkgs.hackneyed;  # -> home.pointerCursor (XCURSOR_* env + gtk cursorTheme)
+      package = pkgs.hackneyed; # -> home.pointerCursor (XCURSOR_* env + gtk cursorTheme)
       name = "Hackneyed";
       size = 36;
     };
 
     targets = {
-      gtk.enable = true;                      # adw-gtk3 + base16 gtk.css for gtk3/gtk4
+      gtk.enable = true; # adw-gtk3 + base16 gtk.css for gtk3/gtk4
       qt = {
-        enable = true;                        # qtct + kvantum with base16 palette
+        enable = true; # qtct + kvantum with base16 palette
         standardDialogs = "xdgdesktopportal"; # Qt apps use the same GTK portal file picker
       };
-      "font-packages".enable = true;          # install the font packages declared above
-      foot.enable = true;                     # merges cleanly with existing pad setting
+      "font-packages".enable = true; # install the font packages declared above
+      foot.enable = true; # merges cleanly with existing pad setting
     };
   };
 
@@ -55,20 +55,20 @@
   dconf.settings."org/gnome/desktop/interface" = {
     color-scheme = "prefer-dark";
     font-name = "DejaVu Sans 12";
-    monospace-font-name = "MesloLGS Nerd Font Mono 12";
+    monospace-font-name = "MesloLGS Nerd Font Mono 14";
     cursor-theme = "Hackneyed";
     cursor-size = 36;
   };
 
   # Niri-specific user services
-  services.kanshi.enable = true;    # Display configuration
+  services.kanshi.enable = true; # Display configuration
 
   # Terminal (Stylix-themed)
   programs.foot = {
     enable = true;
     settings = {
       main = {
-        pad = "10x10";              # Add padding around terminal content
+        pad = "10x10"; # Add padding around terminal content
       };
     };
   };

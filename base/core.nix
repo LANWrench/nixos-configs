@@ -1,4 +1,9 @@
-{ config, pkgs, inputs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
   # Common system packages (desktop-agnostic, WSL-safe)
@@ -11,6 +16,8 @@
     ripgrep
     inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default
     fuse
+    jq
+    dig
   ];
 
   # D-Bus (required by most services and desktop environments)
