@@ -18,6 +18,7 @@
     fuse
     jq
     dig
+    ncdu
   ];
 
   # D-Bus (required by most services and desktop environments)

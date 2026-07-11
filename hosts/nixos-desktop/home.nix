@@ -1,4 +1,9 @@
-{ config, pkgs, pkgs-stable, ... }:
+{
+  config,
+  pkgs,
+  pkgs-stable,
+  ...
+}:
 
 {
   imports = [
@@ -21,8 +26,8 @@
   home.packages = with pkgs; [
     # Browsers and communication
     brave
-    pkgs-stable.discord      # Use stable to avoid Electron build issues
-    pkgs-stable.mailspring   # Use stable to avoid Electron build issues
+    pkgs-stable.discord # Use stable to avoid Electron build issues
+    pkgs-stable.mailspring # Use stable to avoid Electron build issues
 
     # File managers and utilities
     peazip
@@ -30,24 +35,20 @@
     cryptomator
 
     # Productivity
-    pkgs-stable.logseq       # Use stable to avoid Electron build issues
-    pkgs-stable.obsidian     # Use stable to avoid Electron build issues
+    pkgs-stable.logseq # Use stable to avoid Electron build issues
+    pkgs-stable.obsidian # Use stable to avoid Electron build issues
 
     # Media
     vlc
 
     # Gaming (desktop-specific)
     steam
-    winboat
     pcsx2
     pkgs-stable.mudlet
-    lutris
-    r2modman
-    heroic
     moonlight-qt
 
     # AI
-    pkgs-stable.lmstudio     # Use stable to avoid Electron build issues
+    pkgs-stable.lmstudio # Use stable to avoid Electron build issues
 
     # Utilities
     localsend

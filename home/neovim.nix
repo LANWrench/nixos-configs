@@ -27,7 +27,6 @@
     plugins = with pkgs.vimPlugins; [
       nvim-cmp
       cmp-nvim-lsp
-      cmp-path
 
       plenary-nvim
       telescope-nvim

@@ -46,6 +46,7 @@
       };
       "font-packages".enable = true; # install the font packages declared above
       foot.enable = true; # merges cleanly with existing pad setting
+      neovim.enable = true; # base16 catppuccin-mocha colorscheme for nvim
     };
   };
 
