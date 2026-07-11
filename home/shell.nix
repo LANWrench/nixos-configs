@@ -7,8 +7,8 @@
     # One-shot Claude queries without quoting: `q why is my disk full`.
     # "$*" joins all arguments into a single prompt string.
     initExtra = ''
-      q()  { claude -p "$*"; }
-      qq() { claude -p -c "$*"; }
+      q()  { claude -p --model haiku "$*"; }
+      qq() { claude -p -c --model haiku "$*"; }
     '';
   };
 
