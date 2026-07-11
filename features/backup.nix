@@ -25,7 +25,8 @@
         "/home/*/.cache"
         "/home/*/.local/share/Trash"
         "/home/*/Downloads"
-        "/home/*/.snapshots" # Don't backup the snapshots themselves
+        "/home/.snapshots" # Snapper/btrfs snapshots of /home (N full copies!) — NOT per-user
+        "/home/*/.snapshots" # Any per-user snapshot dirs, just in case
         "/home/*/.steam" # Steam games are huge and redownloadable
         "/home/*/.local/share/Steam"
         "/home/*/.lmstudio/models" # Can always redownload models, they are big
@@ -51,12 +52,12 @@
         RandomizedDelaySec = "1h"; # Random 0-60min delay
       };
 
-      # Keep backups for
+      # Off-site retention. Snapper covers fine-grained recent history locally
+      # (see features/btrfs-snapshots.nix), so restic is disaster recovery only.
       pruneOpts = [
-        "--keep-daily 14"
-        "--keep-weekly 8"
-        "--keep-monthly 12"
-        "--keep-yearly 4"
+        "--keep-daily 7"
+        "--keep-weekly 4"
+        "--keep-monthly 6"
       ];
 
       # Repository maintenance
