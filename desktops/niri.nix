@@ -17,11 +17,9 @@
     compositor.name = "niri";
   };
 
-  # Enable X server with nvidia drivers (needed for some compatibility)
-  services.xserver = {
-    enable = true;
-    videoDrivers = [ "nvidia" ];
-  };
+  # Enable X server (needed for some compatibility).
+  # GPU drivers (videoDrivers) are hardware-specific → hosts/<name>/hardware.nix
+  services.xserver.enable = true;
 
   # XDG Desktop Portals for Niri
   xdg.portal = {
@@ -45,6 +43,7 @@
   # (a second notification daemon conflicts on the D-Bus name).
   environment.systemPackages = with pkgs; [
     xwayland-satellite  # XWayland support for legacy apps
+    nautilus  # GNOME Files — file manager (niri ships none; uses the gvfs backend below)
   ];
 
   # Services needed for Niri

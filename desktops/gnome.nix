@@ -10,11 +10,9 @@
     autoLogin.enable = false;
   };
 
-  # Enable X server with nvidia drivers
-  services.xserver = {
-    enable = true;
-    videoDrivers = [ "nvidia" ];
-  };
+  # Enable X server.
+  # GPU drivers (videoDrivers) are hardware-specific → hosts/<name>/hardware.nix
+  services.xserver.enable = true;
 
   # XDG Desktop Portals for GNOME
   xdg.portal = {

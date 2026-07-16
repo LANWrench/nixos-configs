@@ -28,6 +28,7 @@
   };
 
   # Nvidia GPU configuration
+  services.xserver.videoDrivers = [ "nvidia" ];
   hardware.nvidia = {
     modesetting.enable = true;
     powerManagement.enable = false;
@@ -35,6 +36,9 @@
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
+
+  # GPU access inside containers (CDI for features/containers.nix podman)
+  hardware.nvidia-container-toolkit.enable = true;
 
   # Nvidia-specific environment variables for Wayland
   environment.sessionVariables = {

@@ -9,6 +9,6 @@
     defaultNetwork.settings.dns_enabled = true;
   };
 
-  # CDI for GPU access in containers
-  hardware.nvidia-container-toolkit.enable = true;
+  # GPU access in containers (nvidia-container-toolkit) is hardware-specific
+  # and lives in the host's hardware.nix, not here.
 }

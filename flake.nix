@@ -19,6 +19,11 @@
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs:
@@ -28,9 +33,9 @@
     {
       nixosConfigurations = {
         nixos-desktop = mkHost { hostname = "nixos-desktop"; };
+        wsl-work = mkHost { hostname = "wsl-work"; };
         # Add new hosts as one line each, e.g.:
         # laptop = mkHost { hostname = "laptop"; };
-        # wsl    = mkHost { hostname = "wsl"; };
       };
     };
 }

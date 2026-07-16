@@ -1,6 +1,6 @@
 # Scoping Document: Modular Multi-Host NixOS Configuration
 
-**Status:** Implemented (Phases 1–6 complete; Phase 7 WSL host deferred until needed)
+**Status:** Implemented (Phases 1–7 complete; WSL host added 2026-07-15 as `hosts/wsl-work`)
 **Date:** 2026-07-03
 **Repo goal:** A single GitHub repository that configures every machine — desktops with
 varying GPUs, laptops, and WSL instances — from one shared, layered base.

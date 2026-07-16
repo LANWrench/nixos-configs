@@ -88,6 +88,8 @@
   '';
   programs.fish.interactiveShellInit = ''
     nixos-health
+
+    bind \cy accept-autosuggestion
   '';
 
   # Services

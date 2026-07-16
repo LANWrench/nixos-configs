@@ -256,24 +256,13 @@ sudo reboot
 
 ### WSL Instance
 
-For Windows Subsystem for Linux (see SCOPING.md §4.4 for details):
+For Windows Subsystem for Linux (see SCOPING.md §4.4 for the design;
+`hosts/wsl-work/` is a working example). The `nixos-wsl` flake input and
+`profiles/wsl.nix` already exist — a new WSL host is just:
 
-1. Add the input to `flake.nix`:
+1. Create the host directory — no physical profile, no desktop, no hardware files:
    ```nix
-   nixos-wsl.url = "github:nix-community/NixOS-WSL";
-   ```
-2. Create `profiles/wsl.nix`:
-   ```nix
-   { inputs, ... }:
-   {
-     imports = [ inputs.nixos-wsl.nixosModules.default ];
-     wsl.enable = true;
-     wsl.defaultUser = "michael";
-   }
-   ```
-3. Create the host — no physical profile, no desktop, no hardware files:
-   ```nix
-   # hosts/wsl/default.nix
+   # hosts/<name>/default.nix
    { config, lib, pkgs, inputs, ... }:
    {
      imports = [
@@ -288,7 +277,7 @@ For Windows Subsystem for Linux (see SCOPING.md §4.4 for details):
    }
    ```
    ```nix
-   # hosts/wsl/home.nix
+   # hosts/<name>/home.nix
    { config, pkgs, pkgs-stable, ... }:
    {
      imports = [ ../../home ];   # identical shell/prompt/CLI as every host
@@ -297,9 +286,16 @@ For Windows Subsystem for Linux (see SCOPING.md §4.4 for details):
      home.stateVersion = "25.05";
    }
    ```
-4. `wsl = mkHost { hostname = "wsl"; };` in flake.nix
+2. `<name> = mkHost { hostname = "<name>"; };` in flake.nix
+3. On the Windows machine: import the NixOS-WSL tarball
+   (github.com/nix-community/NixOS-WSL/releases), clone this repo inside it,
+   `git add .`, and `sudo nixos-rebuild switch --flake .#<name>`. Restart the
+   distro (`wsl --terminate <DistroName>`) so login switches to `wsl.defaultUser`.
+   Sudo needs no password (NixOS-WSL default); run `passwd` to set one if desired.
 
 Skip: btrfs-snapshots, virtualization, gaming, backup (or configure differently).
+The WSL *distribution* name Windows registers is independent of the Linux
+hostname; they can differ freely.
 
 ### Different User
 

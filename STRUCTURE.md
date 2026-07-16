@@ -45,8 +45,9 @@ nix-config/
 │   └── cli.nix                  # tmux, fzf, btop, claude-code
 │
 ├── profiles/                    # Layer 2: bundles for kinds of machines
-│   └── physical.nix             # Audio, NetworkManager, printing, fonts, gparted
-│                                # (future: laptop.nix, wsl.nix)
+│   ├── physical.nix             # Audio, NetworkManager, printing, fonts, gparted
+│   └── wsl.nix                  # NixOS-WSL (no audio/NetworkManager/printing)
+│                                # (future: laptop.nix)
 │
 ├── features/                    # Layer 2: à la carte system capabilities
 │   ├── btrfs-snapshots.nix      # Snapper snapshots of /home
@@ -72,12 +73,16 @@ nix-config/
 ├── secrets/                     # agenix encrypted secrets (safe to commit)
 │
 └── hosts/                       # Layer 3: one directory per machine
-    └── nixos-desktop/
-        ├── default.nix              # The machine's full recipe (imports)
-        ├── hardware-configuration.nix  # Generated — never hand-edit
-        ├── hardware.nix             # Hand-written: Nvidia, boot, BTRFS
-        ├── configuration.nix        # Timezone, firewall ports
-        └── home.nix                 # Host-only packages + DE home module
+    ├── nixos-desktop/
+    │   ├── default.nix              # The machine's full recipe (imports)
+    │   ├── hardware-configuration.nix  # Generated — never hand-edit
+    │   ├── hardware.nix             # Hand-written: Nvidia, boot, BTRFS
+    │   ├── configuration.nix        # Timezone, firewall ports
+    │   └── home.nix                 # Host-only packages + DE home module
+    └── wsl-work/                    # WSL instance (no hardware files, no DE)
+        ├── default.nix              # base + profiles/wsl.nix + containers
+        ├── configuration.nix        # Timezone
+        └── home.nix                 # ../../home only + work packages
 ```
 
 ## Where Does a New Thing Go?
@@ -170,11 +175,10 @@ Need it on every machine incl. WSL?
 
 ## How to Add a WSL Host
 
-Same as above, but:
+Same as above, but (see `hosts/wsl-work/` for a working example):
 - Do NOT import `profiles/physical.nix`, any `desktops/*`, or hardware files
-- Add the `nixos-wsl` input to the flake and create a `profiles/wsl.nix` with
-  `wsl.enable = true;` (see SCOPING.md §4.4)
-- `hosts/wsl/home.nix` imports only `../../home` — same shell, prompt, and CLI
+- Import `profiles/wsl.nix` instead (nixos-wsl module, `wsl.enable`, default user)
+- `home.nix` imports only `../../home` — same shell, prompt, and CLI
   tooling as every other machine, for free
 
 ## Switching Desktop Environments

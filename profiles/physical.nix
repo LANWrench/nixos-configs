@@ -29,6 +29,10 @@
 
   # Networking
   networking.networkmanager.enable = true;
+  # The networkmanager group only exists on hosts with NetworkManager, so
+  # membership lives here, not in users/michael.nix (same pattern as
+  # libvirtd in features/virtualization.nix)
+  users.users.michael.extraGroups = [ "networkmanager" ];
 
   # Audio with PipeWire
   services.pipewire = {

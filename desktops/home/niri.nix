@@ -57,6 +57,7 @@
     color-scheme = "prefer-dark";
     font-name = "DejaVu Sans 12";
     monospace-font-name = "MesloLGS Nerd Font Mono 14";
+    icon-theme = "kora"; # kora-icon-theme (home.nix); Stylix themes GTK colors but not icons
     cursor-theme = "Hackneyed";
     cursor-size = 36;
   };
