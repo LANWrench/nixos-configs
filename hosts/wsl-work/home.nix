@@ -22,4 +22,7 @@
   home.packages = with pkgs; [
     # e.g. azure-cli, kubectl, terraform, gh — add what this work box needs
   ];
+
+  programs.tmux.enable = true;
+
 }
