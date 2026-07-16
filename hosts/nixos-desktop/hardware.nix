@@ -40,6 +40,9 @@
   # GPU access inside containers (CDI for features/containers.nix podman)
   hardware.nvidia-container-toolkit.enable = true;
 
+  # CUDA build of the local LLM server (features/ollama.nix)
+  services.ollama.package = pkgs.ollama-cuda;
+
   # Nvidia-specific environment variables for Wayland
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";

@@ -42,7 +42,8 @@ nix-config/
 │   ├── starship.nix             # Prompt
 │   ├── neovim.nix               # Neovim (+ neovim-config.lua)
 │   ├── git.nix                  # Git identity — defined ONCE
-│   └── cli.nix                  # tmux, fzf, btop, claude-code
+│   ├── cli.nix                  # tmux, fzf, btop, claude-code
+│   └── ssh.nix                  # SSH client aliases for the homelab fleet
 │
 ├── profiles/                    # Layer 2: bundles for kinds of machines
 │   ├── physical.nix             # Audio, NetworkManager, printing, fonts, gparted
@@ -186,6 +187,20 @@ Same as above, but (see `hosts/wsl-work/` for a working example):
 Change two imports for the host:
 - `hosts/<name>/default.nix`: `../../desktops/gnome.nix` → `../../desktops/kde.nix`
 - `hosts/<name>/home.nix`: `../../desktops/home/gnome.nix` → `../../desktops/home/kde.nix`
+
+## SSH to the Homelab Fleet
+
+`home/ssh.nix` defines `programs.ssh` match blocks so `ssh <alias>` reaches each
+fleet node (all login as `deploy`). It ships to every host via `home/`, so the
+aliases work from the desktop, laptop, or WSL alike:
+
+```bash
+ssh edge01   # ssh dns01, db01, pod01, proxy01, vps01, vps02, ...
+```
+
+Aliases mirror the Colmena node names in `~/nix-fleet/flake.nix` (a separate
+repo). The two are **not** linked automatically — when a node is added, removed,
+or re-IP'd there, update `home/ssh.nix` to match.
 
 ## Maintenance
 

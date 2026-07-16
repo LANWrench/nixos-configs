@@ -19,6 +19,7 @@
     jq
     dig
     ncdu
+    restic
   ];
 
   # D-Bus (required by most services and desktop environments)

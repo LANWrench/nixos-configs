@@ -29,7 +29,7 @@ inputs.nixpkgs.lib.nixosSystem {
         backupFileExtension = "backup";
         useGlobalPkgs = true;
         useUserPackages = true;
-        extraSpecialArgs = { inherit pkgs-stable; };
+        extraSpecialArgs = { inherit inputs pkgs-stable; };
         users.${user}.imports = [
           ../hosts/${hostname}/home.nix
           inputs.stylix.homeModules.stylix

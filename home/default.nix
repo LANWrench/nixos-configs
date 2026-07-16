@@ -11,6 +11,7 @@
     ./neovim.nix
     ./git.nix
     ./cli.nix
+    ./ssh.nix
   ];
 
   home.sessionPath = [
