@@ -10,7 +10,7 @@
   programs.ssh = {
     enable = true;
 
-    matchBlocks = {
+    settings = {
       # --- LAN nodes (172.30.20.0/24) ---
       edge01 = {
         hostname = "172.30.20.92";

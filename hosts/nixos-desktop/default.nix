@@ -33,7 +33,7 @@
     ../../features/containers.nix # Podman/OCI containers
     ../../features/gaming.nix # Gaming-specific programs
     ../../features/terminal-status-banner.nix # Health check on terminal startup
-    ../../features/ollama.nix # Local LLM server (CUDA acceleration in hardware.nix)
+    ../../features/llama-cpp.nix # Local LLM server (CUDA build/tuning in hardware.nix)
 
     # Services (optional, host-specific)
 

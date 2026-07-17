@@ -40,8 +40,19 @@
   # GPU access inside containers (CDI for features/containers.nix podman)
   hardware.nvidia-container-toolkit.enable = true;
 
-  # CUDA build of the local LLM server (features/ollama.nix)
-  services.ollama.package = pkgs.ollama-cuda;
+  # CUDA build + GPU tuning of the local LLM server (features/llama-cpp.nix)
+  services.llama-cpp = {
+    package = pkgs.llama-cpp.override { cudaSupport = true; };
+    settings = {
+      n-gpu-layers = 999; # offload the whole model to the GPU (default is 0 = CPU only!)
+      ctx-size = 32768; # explicit context; VRAM-dependent (KV cache grows with it)
+      flash-attn = "on";
+      # Quantized KV cache: halves context VRAM for near-zero quality cost,
+      # so a ~20GB model + 32k ctx fits comfortably in 24GB
+      cache-type-k = "q8_0";
+      cache-type-v = "q8_0";
+    };
+  };
 
   # Nvidia-specific environment variables for Wayland
   environment.sessionVariables = {

@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 {
   # ===== AUTOMATIC SYSTEM UPDATES =====
@@ -17,12 +17,12 @@
     flake = "/home/michael/nix-config";
     flags = [
       "-L" # print build logs
-      "--update-input" "nixpkgs"
-      "--update-input" "home-manager"
-      "--update-input" "stylix"
-      "--update-input" "agenix"
       "--commit-lock-file"
-    ];
+    ]
+    # Update every flake input weekly — derived from flake.nix, so new
+    # inputs are included automatically (no manual list to keep in sync)
+    ++ lib.concatMap (name: [ "--update-input" name ])
+      (builtins.filter (n: n != "self") (builtins.attrNames inputs));
     dates = "weekly";
     randomizedDelaySec = "45min";
   };
