@@ -16,7 +16,7 @@
         hostname = "172.30.20.92";
         user = "deploy";
       };
-      pod01 = {
+      app01 = {
         hostname = "172.30.20.105";
         user = "deploy";
       };

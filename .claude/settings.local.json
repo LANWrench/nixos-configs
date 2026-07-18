@@ -28,7 +28,8 @@
       "Bash(systemctl show *)",
       "Bash(snapper -c home list)",
       "Bash(nixos-health *)",
-      "Read(//home/michael/.config/**)"
+      "Read(//home/michael/.config/**)",
+      "Bash(find /nix/store/jmncq8s3nnbpc4izws8v4y7rwzwl46sp-hermes-agent-env/lib/python3.12/site-packages -name shell_hooks* -o -name *shell_hook*)"
     ]
   }
 }
