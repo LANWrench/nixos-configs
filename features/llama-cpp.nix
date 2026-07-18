@@ -17,6 +17,7 @@
     settings = {
       models-dir = "/var/lib/llama-cpp/models";
       jinja = true; # use the model's own chat template — required for tool calling (agents)
+      webui-mcp-proxy = true;
     };
   };
 }
