@@ -13,7 +13,5 @@
 
   programs.btop.enable = true;
 
-  programs.htop.enable = true;
-
   programs.claude-code.enable = true;
 }
