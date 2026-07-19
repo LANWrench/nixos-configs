@@ -18,6 +18,12 @@
       models-dir = "/var/lib/llama-cpp/models";
       jinja = true; # use the model's own chat template — required for tool calling (agents)
       webui-mcp-proxy = true;
+      # MTP speculative decoding: model self-drafts 2 tokens/pass, ~1.5-2x faster
+      # generation, identical output. Requires every model in models-dir to have
+      # an MTP head (Qwen3.6+ "MTP" ggufs) — move per-model via models-preset if
+      # a non-MTP model is ever added.
+      spec-type = "draft-mtp";
+      spec-draft-n-max = 2;
     };
   };
 }
