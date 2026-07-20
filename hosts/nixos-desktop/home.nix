@@ -36,7 +36,7 @@
     cryptomator
 
     # Productivity
-    pkgs-stable.logseq # Use stable to avoid Electron build issues
+    # logseq dropped 2026-07-20: stuck on EOL electron-39.8.10 (marked insecure)
     pkgs-stable.obsidian # Use stable to avoid Electron build issues
 
     # Media
