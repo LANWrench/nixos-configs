@@ -8,7 +8,6 @@
   networking.firewall.allowedTCPPorts = [
     53317 # LocalSend
     5173 # npm tubtrack test site
-    9000 # MinIO endpoint
   ];
 
   # Binary cache for CUDA packages (this host builds ollama-cuda etc. weekly
