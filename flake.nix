@@ -26,12 +26,13 @@
     };
 
     hermes-agent = {
-      url = "github:NousResearch/hermes-agent";
+      url = "github:NousResearch/hermes-agent/v2026.7.7.2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = inputs:
+  outputs =
+    inputs:
     let
       mkHost = import ./lib/mkhost.nix { inherit inputs; };
     in
