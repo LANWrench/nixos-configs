@@ -51,6 +51,7 @@
     # AI
     pkgs-stable.lmstudio # Use stable to avoid Electron build issues
     inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default # Agent CLI; uses local llama-server (features/llama-cpp.nix)
+    inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.desktop # Electron desktop GUI (hermes-desktop)
 
     # Utilities
     localsend
