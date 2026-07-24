@@ -20,6 +20,7 @@
     dig
     ncdu
     restic
+    openssl
   ];
 
   # D-Bus (required by most services and desktop environments)
