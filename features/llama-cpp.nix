@@ -9,8 +9,7 @@ let
   # loudly ("failed to create MTP context") on every model that lacks one.
   modelsPreset = pkgs.writeText "llama-cpp-models-preset.ini" ''
     [Qwen3.6-27B-Q4_K_M]
-    spec-type = draft-mtp
-    spec-draft-n-max = 2
+    spec-type = none
   '';
 in
 {

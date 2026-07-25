@@ -45,13 +45,13 @@
     package = pkgs.llama-cpp.override { cudaSupport = true; };
     settings = {
       n-gpu-layers = 999; # offload the whole model to the GPU (default is 0 = CPU only!)
-      ctx-size = 65536; # Hermes Agent requires >= 64k; VRAM-dependent (KV cache grows with it)
+      ctx-size = 131072; # Hermes Agent requires >= 64k; VRAM-dependent (KV cache grows with it)
       parallel = 1;
       flash-attn = "on";
       # Quantized KV cache: halves context VRAM for near-zero quality cost,
       # so a ~20GB model + 32k ctx fits comfortably in 24GB
-      cache-type-k = "q8_0";
-      cache-type-v = "q8_0";
+      cache-type-k = "q4_0";
+      cache-type-v = "q4_0";
     };
   };
 
