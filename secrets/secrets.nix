@@ -9,4 +9,9 @@ in
     michael
     host
   ];
+
+  "opencode-env.age".publicKeys = [
+    michael
+    host
+  ];
 }

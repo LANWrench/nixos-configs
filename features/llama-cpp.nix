@@ -33,6 +33,7 @@ in
       host = "0.0.0.0";
       jinja = true; # use the model's own chat template — required for tool calling (agents)
       webui-mcp-proxy = true;
+      models-max = 1; # single GPU: only one model fits, so evict the current one before loading the next (avoids OOM on swap)
     };
   };
 }

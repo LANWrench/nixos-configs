@@ -23,6 +23,15 @@
   # Theming: COSMIC themes itself. Stylix theming for the niri desktop
   # lives in desktops/home/niri.nix and activates only when niri is imported.
 
+  # Decrypt to a fixed absolute path. The home-manager agenix module otherwise
+  # decrypts under ${XDG_RUNTIME_DIR}, and that literal string ends up in
+  # opencode's JSON config — opencode does NOT expand env vars in {file:...}
+  # paths (verified against opencode 1.18.3), so it must be a plain path.
+  age.secrets."opencode-env" = {
+    file = ../../secrets/opencode-env.age;
+    path = "${config.home.homeDirectory}/.config/agenix/opencode-env";
+  };
+
   # Host-specific packages
   home.packages = with pkgs; [
     # Browsers and communication
@@ -51,7 +60,6 @@
     # AI
     pkgs-stable.lmstudio # Use stable to avoid Electron build issues
     inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default # Agent CLI; uses local llama-server (features/llama-cpp.nix)
-    inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.desktop # Electron desktop GUI (hermes-desktop)
 
     # Utilities
     localsend
@@ -113,6 +121,35 @@
       obs-pipewire-audio-capture
       obs-backgroundremoval
     ];
+  };
+
+  # opencode pointed at the fleet LiteLLM gateway (llm.handmc.net → app01:4000).
+  # The opencode-plugin-litellm plugin queries the proxy's /v1/models at startup
+  # and registers every model automatically — so the model list lives ONLY in
+  # LiteLLM's config.yaml. Add a model there and it shows up here on next launch;
+  # nothing to maintain in this file. The plugin is auto-installed by opencode into
+  # ~/.config/opencode/node_modules (not managed here).
+  #
+  # The provider block is still required because our proxy is remote (the plugin's
+  # auto-detect only probes localhost). The API key is a LiteLLM key (master or a
+  # minted virtual key) via LITELLM_API_KEY — never hardcoded (it would land in the
+  # world-readable Nix store).
+  programs.opencode.settings = {
+    "$schema" = "https://opencode.ai/config.json";
+    plugin = [ "opencode-plugin-litellm@latest" ];
+    provider.litellm = {
+      npm = "@ai-sdk/openai-compatible";
+      name = "Fleet LiteLLM";
+      options = {
+        baseURL = "https://llm.handmc.net/v1";
+        # opencode's {file:...} inlines the file's raw contents (trailing newline
+        # trimmed) as the key, so opencode-env.age must hold ONLY the bare key.
+        apiKey = "{file:${config.age.secrets."opencode-env".path}}";
+      };
+    };
+    # Default stays a local model (no cloud cost); switch with /models in the TUI.
+    # Must be one of the model_names LiteLLM exposes (fast = local Qwen 27B).
+    model = "litellm/fast";
   };
 
   programs.vscode = {

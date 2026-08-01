@@ -33,6 +33,7 @@ inputs.nixpkgs.lib.nixosSystem {
         users.${user}.imports = [
           ../hosts/${hostname}/home.nix
           inputs.stylix.homeModules.stylix
+          inputs.agenix.homeManagerModules.default
         ];
       };
     }
