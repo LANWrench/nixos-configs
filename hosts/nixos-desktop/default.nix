@@ -34,6 +34,7 @@
     ../../features/gaming.nix # Gaming-specific programs
     ../../features/terminal-status-banner.nix # Health check on terminal startup
     ../../features/llama-cpp.nix # Local LLM server (CUDA build/tuning in hardware.nix)
+    ../../features/voice-capture.nix # EVISTR USB recorder → GPU whisper → Obsidian notes
 
     # Services (optional, host-specific)
 

@@ -1,0 +1,7 @@
+# Active projects, one "slug: description" per line. Read fresh on every triage
+# call, so "the Caltrans thing" keeps resolving as this list changes. Edit
+# /srv/capture/projects.txt at runtime; this file only seeds it on first deploy.
+nix-fleet: NixOS homelab fleet managed with Colmena on Proxmox
+litellm-gateway: unified LiteLLM LLM gateway on app01
+voice-capture: this voice-note ingestion pipeline
+caltrans-vpn: Caltrans site-to-site VPN / tunnel work

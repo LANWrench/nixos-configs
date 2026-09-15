@@ -1,0 +1,28 @@
+# Voice-note glossary: canonical spellings of domain jargon that whisper
+# reliably mangles. One term (or comma-separated terms) per line. Blank lines
+# and lines starting with '#'... note: '#' lines are treated as a term too, so
+# keep comments out of the actual term area below. Edit /srv/capture/glossary.txt
+# at runtime; this file only seeds it on first deploy.
+Headscale
+Colmena
+agenix
+Caddy
+Talos
+k3s
+MicroK8s
+Proxmox
+NixOS
+niri
+SearXNG
+Zabbix
+ProMiles
+Caltrans
+FortiGate
+Kemp
+colo
+llama.cpp
+Hermes
+Syncthing
+Obsidian
+Datto RMM
+SyncTrain

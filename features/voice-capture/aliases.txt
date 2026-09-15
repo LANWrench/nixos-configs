@@ -1,0 +1,19 @@
+# Whisper phonetic-misfire alias map. Whisper mangles domain proper nouns into
+# forms the exact-match glossary can't catch (it only re-cases correctly-spelled
+# words). Each line maps garbled variants to the canonical term:
+#
+#     Canonical <= variant1, variant2, ...
+#
+# Matching is case-insensitive and whole-phrase (variants may contain spaces).
+# Add a variant whenever you spot a new mishearing in a transcript. Edit
+# /srv/capture/aliases.txt at runtime; this file only seeds it on first deploy.
+Colmena <= kilminar, kill mina, kill miner, kilmeneer, kilmena, coal mena, colmina, cole mena
+Headscale <= head scale, headscale, head-scale
+agenix <= a genix, agenics, a-genix, age nix
+SearXNG <= sear x n g, searx ng, search x n g
+niri <= neary, neeri, neary
+Talos <= tay los, taloss, tay loss
+Proxmox <= prox mox, proxmocks, proc mox
+Zabbix <= za bix, zabix, sabbix
+FortiGate <= forty gate, fortigate, forte gate
+Caltrans <= cal trans, cowtrans, cal-trans

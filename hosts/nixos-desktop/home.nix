@@ -54,7 +54,9 @@
     # Gaming (desktop-specific)
     steam
     pcsx2
-    pkgs-stable.mudlet
+    # unstable, not stable: 26.05 froze mudlet at 4.19.1 which fails to build;
+    # unstable's 4.22.0 builds (and is cached). Swapped 2026-08-01.
+    mudlet
     moonlight-qt
 
     # AI
@@ -83,8 +85,9 @@
     btrfs-assistant
 
     # Themes and icons
-    nordic
-    orchis-theme
+    # nordic + orchis-theme dropped 2026-08-01: both removed upstream (depended on
+    # gtk-engine-murrine / GTK2). Unused here — niri themes via Stylix
+    # catppuccin-mocha, not these GTK themes.
     hackneyed
     kora-icon-theme
     reversal-icon-theme
@@ -147,9 +150,32 @@
         apiKey = "{file:${config.age.secrets."opencode-env".path}}";
       };
     };
+    agent = {
+      build = {
+        model = "litellm/smart-deepseek-v4-pro";
+        permission = {
+          edit = "allow";
+          bash = "allow";
+        };
+      };
+      plan = {
+        model = "litellm/oracle-gpt-5.6-sol";
+        permission = {
+          edit = "deny";
+          bash = "ask";
+        };
+      };
+      chat = {
+        model = "litellm/chat-deepseek-flash";
+        permission = {
+          edit = "deny";
+          bash = "deny";
+        };
+      };
+    };
     # Default stays a local model (no cloud cost); switch with /models in the TUI.
-    # Must be one of the model_names LiteLLM exposes (fast = local Qwen 27B).
-    model = "litellm/fast";
+    # Must be one of the model_names LiteLLM exposes (see app01 litellmConfig).
+    model = "litellm/fast-qwen-27b";
   };
 
   programs.vscode = {

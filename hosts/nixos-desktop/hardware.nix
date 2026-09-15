@@ -40,6 +40,11 @@
   # GPU access inside containers (CDI for features/containers.nix podman)
   hardware.nvidia-container-toolkit.enable = true;
 
+  # Build CUDA kernels ONLY for this box's GPU (RTX 4090 = compute capability
+  # 8.9) instead of every architecture nixpkgs supports. Dramatically shortens
+  # from-source CUDA builds (whisper.cpp, llama.cpp) — one arch instead of ~8.
+  nixpkgs.config.cudaCapabilities = [ "8.9" ];
+
   # CUDA build + GPU tuning of the local LLM server (features/llama-cpp.nix)
   services.llama-cpp = {
     package = pkgs.llama-cpp.override { cudaSupport = true; };

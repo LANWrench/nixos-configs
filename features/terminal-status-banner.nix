@@ -103,6 +103,39 @@
         fi
       fi
 
+      # Stable channel freshness. nixpkgs-stable.url is a hardcoded release
+      # string (nixos-YY.MM) that `nix flake update` NEVER bumps, so an EOL pin
+      # slips by silently. We figure out the current stable from today's date
+      # rather than the network: NixOS releases YY.05 (~May) and YY.11 (~Nov)
+      # each year. The one-month grace (Jun / Dec, not May / Nov) means we don't
+      # nag the day a release drops, before its cache has settled.
+      stable_behind=""
+      flake_file="$HOME/nix-config/flake.nix"
+      if [ -f "$flake_file" ]; then
+        # Pull "26.05" out of:  nixpkgs-stable.url = "...nixos-26.05";
+        pinned_release=$(grep -oP 'nixpkgs-stable\.url = "github:nixos/nixpkgs/nixos-\K[0-9]{2}\.[0-9]{2}' "$flake_file" | head -1)
+        if [ -n "$pinned_release" ]; then
+          year=$(date +%y)
+          month=$(date +%-m)
+
+          # Which stable release is current today?
+          if [ "$month" -ge 12 ]; then
+            current_release="$year.11"                 # December: this year's Nov release
+          elif [ "$month" -ge 6 ]; then
+            current_release="$year.05"                 # June-Nov: this year's May release
+          else
+            current_release="$(( 10#$year - 1 )).11"   # Jan-May: last year's Nov release
+          fi
+
+          # Compare as plain numbers: "26.05" -> 2605, "26.11" -> 2611.
+          pinned_num=$(echo "$pinned_release" | tr -d '.')
+          current_num=$(echo "$current_release" | tr -d '.')
+          if [ "$pinned_num" -lt "$current_num" ]; then
+            stable_behind="$pinned_release -> $current_release"
+          fi
+        fi
+      fi
+
       # --- Build the attention block ---
       alert_lines=()
       hint_lines=()
@@ -159,6 +192,11 @@
       if [ "$updates_available" != "unknown" ]; then
         alert_lines+=("''${YELLOW}! flake inputs stale — $updates_available''${NC}")
         hint_lines+=("fix:    cd ~/nix-config && nix flake update")
+      fi
+
+      if [ -n "$stable_behind" ]; then
+        alert_lines+=("''${YELLOW}! nixpkgs-stable behind — $stable_behind (pinned release likely EOL)''${NC}")
+        hint_lines+=("fix:    set nixpkgs-stable.url to nixos-''${stable_behind##* } in ~/nix-config/flake.nix")
       fi
 
       # Filesystems at >=90% capacity (deduped by device: /, /home and
