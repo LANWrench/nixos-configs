@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   flakeDir = "/home/michael/nix-config";
@@ -22,7 +27,12 @@ let
   #      (systemctl status / journalctl, and the terminal health banner).
   updateScript = pkgs.writeShellApplication {
     name = "nixos-auto-update";
-    runtimeInputs = [ pkgs.git pkgs.nix pkgs.nixos-rebuild ];
+    runtimeInputs = [
+      pkgs.git
+      pkgs.nix
+      pkgs.nixos-rebuild
+      pkgs.util-linux
+    ];
     text = ''
       set -euo pipefail
       cd "${flakeDir}"
@@ -42,14 +52,14 @@ let
       if ! nix --extra-experimental-features 'nix-command flakes' build --no-link -L \
         "${flakeDir}#nixosConfigurations.${host}.config.system.build.toplevel"; then
         echo "!! Build failed — reverting flake.lock; git and running system left untouched"
-        git checkout -- flake.lock
+        runuser -u michael -- git checkout -- flake.lock
         exit 1
       fi
 
       echo "==> Build succeeded; committing flake.lock and switching"
       # Commit only flake.lock, never other working-tree changes.
-      git add -- flake.lock
-      git commit -m "flake.lock: weekly auto-update" -- flake.lock
+      runuser -u michael -- git add -- flake.lock
+      runuser -u michael -- git commit -c user.name="NixOS Auto-Update" -c user.email=nixos-upgrade@nixos-desktop -m "flake.lock: weekly auto-update" -- flake.lock
       nixos-rebuild switch --flake "${flakeDir}#${host}"
       echo "==> Update complete"
     '';
