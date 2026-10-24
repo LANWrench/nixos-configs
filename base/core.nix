@@ -8,6 +8,7 @@
 {
   # Common system packages (desktop-agnostic, WSL-safe)
   environment.systemPackages = with pkgs; [
+    tree
     vim
     wget
     git

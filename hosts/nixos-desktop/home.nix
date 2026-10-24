@@ -60,7 +60,9 @@
     moonlight-qt
 
     # AI
-    pkgs-stable.lmstudio # Use stable to avoid Electron build issues
+    # unstable, not stable: 26.05 froze lmstudio at 0.4.15; unstable tracks
+    # upstream releases. Swapped 2026-10-11.
+    lmstudio
     inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default # Agent CLI; uses local llama-server (features/llama-cpp.nix)
 
     # Utilities
