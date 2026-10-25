@@ -72,59 +72,43 @@ mkdir -p hosts/laptop
 
 # Copy the GENERATED hardware config from the fresh install — this is
 # per-host and never shared between machines
-sudo cp /etc/nixos/hardware-configuration.nix hosts/laptop/
+sudo cp /etc/nixos/hardware-configuration.nix hosts/laptop/hardware-generated.nix
 ```
 
-**hosts/laptop/default.nix** — the machine's full recipe:
+**hosts/laptop/default.nix** — the machine's full recipe. Everything the
+machine runs is imported here, plus the few settings only it has:
 
 ```nix
 { config, lib, pkgs, inputs, ... }:
 
 {
   imports = [
-    # Universal base (always — WSL-safe by construction)
-    ../../base
-
-    # Physical machine profile: audio, NetworkManager, printing, fonts
-    # (skip on WSL)
-    ../../profiles/physical.nix
-
-    # User
-    ../../users/michael.nix
+    ../../common                    # Every machine (always — WSL-safe by construction)
+    ../../platform/physical.nix     # Real hardware: audio, NetworkManager, printing
 
     # Hardware
-    ./hardware-configuration.nix   # generated — never hand-edit
-    ./hardware.nix                 # hand-written: GPU, boot, filesystems
-    ./configuration.nix
+    ./hardware-generated.nix        # generated — never hand-edit
+    ./hardware.nix                  # hand-written: GPU, boot, power
 
     # Features (pick what you need)
     ../../features/btrfs-snapshots.nix  # ✓ Snapshots
     ../../features/backup.nix           # ✓ Backups
     ../../features/auto-update.nix      # ✓ Auto-updates
     # ../../features/virtualization.nix  # ✗ Skip - too heavy for laptop
-    # ../../features/containers.nix      # ✗ Skip if not needed
     # ../../features/gaming.nix          # ✗ Skip - desktop only
 
-    # Desktop environment
-    ../../desktops/kde.nix  # Or gnome, niri, cosmic
+    ../../desktops/niri.nix         # Desktop (brings fonts + Stylix theming)
+
+    ./apps.nix                      # This machine's user apps
   ];
 
-  system.stateVersion = "25.05";  # The release this machine was INSTALLED with
-}
-```
-
-**hosts/laptop/configuration.nix** — hostname is set automatically by `mkHost`:
-
-```nix
-{ config, pkgs, ... }:
-
-{
+  # ===== Host settings ===== (hostname is set by mkHost)
   time.timeZone = "America/Chicago";
+  networking.firewall.allowedTCPPorts = [ ];
 
-  # Firewall ports for host-specific services
-  networking.firewall.allowedTCPPorts = [
-    # Add ports as needed
-  ];
+  # The release this machine was INSTALLED with — never bump
+  system.stateVersion = "26.05";
+  home-manager.users.michael.home.stateVersion = "26.05";
 }
 ```
 
@@ -168,27 +152,21 @@ sudo cp /etc/nixos/hardware-configuration.nix hosts/laptop/
 }
 ```
 
-**hosts/laptop/home.nix** — the shared `home/` base provides shell, starship,
-neovim, git identity, and CLI tools; only list what is extra on this machine:
+**hosts/laptop/apps.nix** — `common/` already provides shell, prompt, neovim,
+git identity, and CLI tools; only list what is extra on this machine:
 
 ```nix
-{ config, pkgs, pkgs-stable, ... }:
+{ pkgs, pkgs-stable, ... }:
 
 {
-  imports = [
-    ../../home                     # shared base — do not duplicate its contents
-    ../../desktops/home/kde.nix
-  ];
-
-  home.username = "michael";
-  home.homeDirectory = "/home/michael";
-  home.stateVersion = "25.05";     # match the system stateVersion
-
-  home.packages = with pkgs; [
+  home-manager.users.michael.home.packages = with pkgs; [
     # host-only packages
   ];
 }
 ```
+
+A small host can skip `apps.nix` and put that `home.packages` line straight
+into `default.nix` (see `hosts/wsl-work/default.nix`).
 
 ### Step 5: Add the Host to flake.nix
 
@@ -204,7 +182,7 @@ nixosConfigurations = {
 
 ### Step 6: Handle Secrets (If Using)
 
-If you use agenix secrets (searxng, caddy):
+If you use agenix secrets (backup credentials, opencode key — see `secrets/secrets.nix`):
 
 ```bash
 # Copy your age key to new machine
@@ -218,8 +196,8 @@ sudo nano /etc/agenix/age.key
 sudo chmod 600 /etc/agenix/age.key
 ```
 
-**OR skip services that need secrets** by not importing them in
-`hosts/<hostname>/default.nix`.
+**OR skip features that need secrets** (e.g. `features/backup.nix`) by not
+importing them in `hosts/<hostname>/default.nix`.
 
 ### Step 7: Build and Switch
 
@@ -256,34 +234,25 @@ sudo reboot
 
 ### WSL Instance
 
-For Windows Subsystem for Linux (see SCOPING.md §4.4 for the design;
-`hosts/wsl-work/` is a working example). The `nixos-wsl` flake input and
-`profiles/wsl.nix` already exist — a new WSL host is just:
+`hosts/wsl-work/` is a working example. The `nixos-wsl` flake input and
+`platform/wsl.nix` already exist — a new WSL host is just:
 
-1. Create the host directory — no physical profile, no desktop, no hardware files:
+1. Create the host directory — no physical platform, no desktop, no hardware files:
    ```nix
    # hosts/<name>/default.nix
    { config, lib, pkgs, inputs, ... }:
    {
      imports = [
-       ../../base
-       ../../profiles/wsl.nix
-       ../../users/michael.nix
-       ./configuration.nix
-
+       ../../common                    # identical shell/prompt/CLI as every host
+       ../../platform/wsl.nix
        ../../features/containers.nix   # containers work in WSL
      ];
-     system.stateVersion = "25.05";
-   }
-   ```
-   ```nix
-   # hosts/<name>/home.nix
-   { config, pkgs, pkgs-stable, ... }:
-   {
-     imports = [ ../../home ];   # identical shell/prompt/CLI as every host
-     home.username = "michael";
-     home.homeDirectory = "/home/michael";
-     home.stateVersion = "25.05";
+
+     time.timeZone = "America/Chicago";
+     home-manager.users.michael.home.packages = with pkgs; [ ];
+
+     system.stateVersion = "26.05";
+     home-manager.users.michael.home.stateVersion = "26.05";
    }
    ```
 2. `<name> = mkHost { hostname = "<name>"; };` in flake.nix
@@ -299,15 +268,14 @@ hostname; they can differ freely.
 
 ### Different User
 
+The username `michael` is written directly into the modules
+(`home-manager.users.michael`, `users.users.michael`) rather than passed around
+as a variable — explicit over clever. To use a different name, edit
+`common/user.nix` and replace the name everywhere:
+
 ```bash
-cp users/michael.nix users/yourname.nix
-nano users/yourname.nix   # change username
-```
-
-Update the import in the host's `default.nix`, and pass the user to mkHost:
-
-```nix
-mkHost { hostname = "laptop"; user = "yourname"; }
+grep -rln 'michael' --include=*.nix . | xargs sed -i 's/\bmichael\b/yourname/g'
+# then review the diff — paths like /home/michael change too, which is intended
 ```
 
 ## Troubleshooting
@@ -315,7 +283,7 @@ mkHost { hostname = "laptop"; user = "yourname"; }
 ### Build Fails: "path does not exist"
 - Run `git add .` — flakes only see git-tracked files
 - Check all import paths in your host's `default.nix`
-- Ensure you copied `hardware-configuration.nix` into the host directory
+- Ensure you copied the generated config to `hosts/<name>/hardware-generated.nix`
 
 ### Build Fails: "option does not exist"
 - Comment out features you don't need
@@ -353,7 +321,7 @@ After successful rebuild:
 
 2. **Configure off-site backups** - Edit `features/backup.nix` to use external storage or cloud
 
-3. **Customize packages** - Edit `hosts/<hostname>/home.nix` for host-specific needs
+3. **Customize packages** - Edit `hosts/<hostname>/apps.nix` for host-specific needs
 
 4. **Test restore** - Verify you can restore from snapshots/backups
 

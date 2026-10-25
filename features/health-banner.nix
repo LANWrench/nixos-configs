@@ -286,4 +286,14 @@
       fi
     '')
   ];
+
+  # Run it on every new interactive terminal (home-manager)
+  home-manager.users.michael = {
+    programs.bash.initExtra = ''
+      nixos-health
+    '';
+    programs.fish.interactiveShellInit = ''
+      nixos-health
+    '';
+  };
 }

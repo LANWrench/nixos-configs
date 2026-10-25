@@ -45,7 +45,10 @@
   # from-source CUDA builds (whisper.cpp, llama.cpp) — one arch instead of ~8.
   nixpkgs.config.cudaCapabilities = [ "8.9" ];
 
-  # CUDA build + GPU tuning of the local LLM server (features/llama-cpp.nix)
+  # CUDA-enabled btop (common/cli.nix enables programs.btop)
+  home-manager.users.michael.programs.btop.package = pkgs.btop.override { cudaSupport = true; };
+
+  # CUDA build + GPU tuning of the local LLM server (features/local-llm.nix)
   services.llama-cpp = {
     package = pkgs.llama-cpp.override { cudaSupport = true; };
     settings = {

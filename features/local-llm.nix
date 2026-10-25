@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 let
   # Per-model overrides for the router (see `models-preset` below). Section
@@ -36,4 +36,9 @@ in
       models-max = 1; # single GPU: only one model fits, so evict the current one before loading the next (avoids OOM on swap)
     };
   };
+
+  # Hermes Agent CLI — talks to the llama-server above (home-manager)
+  home-manager.users.michael.home.packages = [
+    inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default
+  ];
 }

@@ -1,3 +1,8 @@
+> **Historical document.** This is the original design plan (July 2026). The
+> layout has since been reorganized by topic (`common/`, `platform/`, merged
+> system + home files) — see the [README](../README.md) for the current
+> structure. The goals and rationale below still apply.
+
 # Scoping Document: Modular Multi-Host NixOS Configuration
 
 **Status:** Implemented (Phases 1–7 complete; WSL host added 2026-07-15 as `hosts/wsl-work`)
