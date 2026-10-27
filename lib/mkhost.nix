@@ -32,7 +32,7 @@ inputs.nixpkgs.lib.nixosSystem {
         useUserPackages = true;
         extraSpecialArgs = { inherit inputs pkgs-stable; };
         # Home-manager modules every host's user config can use. (Stylix is
-        # NOT here: desktops/niri.nix imports it, so hosts without a desktop
+        # NOT here: desktops/niri/ imports it, so hosts without a desktop
         # never load it.)
         sharedModules = [
           inputs.agenix.homeManagerModules.default

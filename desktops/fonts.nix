@@ -1,6 +1,6 @@
 { pkgs, ... }:
 
-# Fonts for any machine with a screen. Imported by the desktop (niri.nix), so a
+# Fonts for any machine with a screen. Imported by the desktop (niri/), so a
 # host gets them by picking a desktop — not by being physical (a VM with a
 # desktop needs them; a headless box or WSL does not). Any future desktop file
 # should import this too.

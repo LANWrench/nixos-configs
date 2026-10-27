@@ -97,7 +97,7 @@ machine runs is imported here, plus the few settings only it has:
     # ../../features/virtualization.nix  # ✗ Skip - too heavy for laptop
     # ../../features/gaming.nix          # ✗ Skip - desktop only
 
-    ../../desktops/niri.nix         # Desktop (brings fonts + Stylix theming)
+    ../../desktops/niri         # Desktop (brings fonts + Stylix theming)
 
     ./apps.nix                      # This machine's user apps
   ];

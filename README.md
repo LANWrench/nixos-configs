@@ -6,7 +6,7 @@ desktops, laptops, WSL — from one shared base.
 **Organizing rule: one topic, one file.** Each file holds *both* the system
 side and the user (home-manager) side of its topic, via
 `home-manager.users.michael = { ... };`. To change niri, open
-`desktops/niri.nix`; to see what a machine runs, open
+`desktops/niri/`; to see what a machine runs, open
 `hosts/<name>/default.nix`.
 
 ## Layout
@@ -32,8 +32,10 @@ nix-config/
 │   └── wsl.nix               #   NixOS-WSL (Windows provides network/audio/display)
 │
 ├── desktops/                 # Desktop environment (system + home in one file)
-│   ├── niri.nix              #   niri + Dank Material Shell + Stylix theming
-│   └── fonts.nix             #   fonts — imported by niri.nix (and any future desktop)
+│   ├── niri/                 #   niri + Dank Material Shell + Stylix theming + kitty
+│   │   ├── default.nix       #     system + home-manager config
+│   │   └── config.kdl        #     niri's own config: keybinds, layout, window rules
+│   └── fonts.nix             #   fonts — imported by niri/ (and any future desktop)
 │
 ├── features/                 # Opt-in capabilities, each fully self-contained
 │   ├── auto-update.nix       #   weekly build-before-commit update + GC + store optimise
@@ -75,7 +77,9 @@ platforms, desktops, or hosts.
 | SSH server, polkit, flakes setting | `common/system.nix` |
 | Audio, Wi-Fi/NetworkManager, printing | `platform/physical.nix` |
 | Fonts | `desktops/fonts.nix` |
-| Desktop look, theme (Stylix), greeter, portals | `desktops/niri.nix` |
+| Desktop look, theme (Stylix), greeter, portals | `desktops/niri/default.nix` |
+| niri keybinds, layout, window rules, startup apps | `desktops/niri/config.kdl` |
+| Terminal (kitty) | `desktops/niri/default.nix` |
 | Shell key bindings (same on every machine) | `common/shell.nix` |
 | A desktop-only app (browser, Discord, VS Code, OBS…) | `hosts/nixos-desktop/apps.nix` |
 | opencode / LiteLLM config | `hosts/nixos-desktop/apps.nix` |
@@ -94,7 +98,7 @@ platforms, desktops, or hosts.
 ```
 Want it on every machine?               → common/  (packages: common/cli.nix)
 Every physical machine (or every WSL)?  → platform/<platform>.nix
-Only with a desktop / screen?           → desktops/niri.nix (fonts: desktops/fonts.nix)
+Only with a desktop / screen?           → desktops/niri/ (fonts: desktops/fonts.nix)
 A bundle some machines opt into?        → features/<name>.nix (create if new)
 Just this one machine?                  → hosts/<name>/  (apps: apps.nix,
                                             hardware: hardware.nix, else default.nix)

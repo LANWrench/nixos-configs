@@ -1,7 +1,7 @@
 { config, pkgs, inputs, ... }:
 
 {
-  imports = [ ./fonts.nix ]; # Fonts shared by every desktop
+  imports = [ ../fonts.nix ]; # Fonts shared by every desktop
 
   # Enable Niri window manager
   programs.niri.enable = true;
@@ -76,7 +76,7 @@
     stylix = {
       enable = true;
       autoEnable = false; # allowlist targets; don't touch neovim/fish/btop/etc.
-      polarity = "dark"; # default is "either"; needed for foot/qt dark variants
+      polarity = "dark"; # default is "either"; needed for qt dark variants
       base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
 
       fonts = {
@@ -108,7 +108,7 @@
           standardDialogs = "xdgdesktopportal"; # Qt apps use the same GTK portal file picker
         };
         "font-packages".enable = true; # install the font packages declared above
-        foot.enable = true; # merges cleanly with existing pad setting
+        kitty.enable = true; # colors + font (MesloLGS, size from fonts.sizes.terminal)
         neovim.enable = true; # base16 catppuccin-mocha colorscheme for nvim
       };
     };
@@ -128,14 +128,49 @@
     # Niri-specific user services
     services.kanshi.enable = true; # Display configuration
 
-    # Terminal (Stylix-themed)
-    programs.foot = {
+    # Removable drives. udisks2 + gvfs (system side) only mount on request;
+    # nothing in a niri session requests it (GNOME uses gnome-shell for that),
+    # so udiskie does it on plug-in -> /run/media/michael/<label>.
+    services.udiskie = {
+      enable = true;
+      automount = true;
+      notify = true; # via DMS notifications
+      tray = "auto"; # icon in the DMS tray only while a drive is attached
+    };
+
+    # Yazi itself is shared (common/cli.nix); the mount plugin is added here because
+    # only this desktop has udisks2. Shift+M in yazi lists drives to mount/unmount/eject.
+    programs.yazi = {
+      plugins.mount = pkgs.yaziPlugins.mount;
+      keymap.mgr.prepend_keymap = [
+        {
+          on = "M";
+          run = "plugin mount";
+          desc = "Mount manager";
+        }
+      ];
+    };
+
+    # Terminal (Stylix-themed). Mod+Return in config.kdl launches it.
+    # Shell integration (fish/bash) is on by default — e.g. Ctrl+Shift+Z / X
+    # jump to the previous / next prompt in the scrollback.
+    programs.kitty = {
       enable = true;
       settings = {
-        main = {
-          pad = "10x10"; # Add padding around terminal content
-        };
+        window_padding_width = 10; # Add padding around terminal content
+        confirm_os_window_close = 0; # close without "are you sure?", even with a program running
       };
     };
+
+    # niri's own config (keybinds, layout, window rules) — edit
+    # desktops/niri/config.kdl, then rebuild. The build runs `niri validate`
+    # on it first, so a typo fails the build instead of breaking the session.
+    # Only config.kdl is managed: DMS writes its own files to
+    # ~/.config/niri/dms/, which stays untouched.
+    xdg.configFile."niri/config.kdl".source =
+      pkgs.runCommand "niri-config.kdl" { } ''
+        ${config.programs.niri.package}/bin/niri validate -c ${./config.kdl}
+        cp ${./config.kdl} $out
+      '';
   };
 }

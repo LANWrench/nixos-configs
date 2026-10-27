@@ -28,6 +28,10 @@
   # User programs (home-manager)
   home-manager.users.michael = {
     programs.tmux.enable = true;
+    programs.yazi = {
+      enable = true;
+      shellWrapperName = "y";
+    };
 
     programs.fzf = {
       enable = true;

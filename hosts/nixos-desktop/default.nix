@@ -32,7 +32,7 @@
     ../../features/voice-capture.nix # EVISTR USB recorder → GPU whisper → Obsidian notes
 
     # Desktop environment (system + home-manager halves in one file)
-    ../../desktops/niri.nix
+    ../../desktops/niri
 
     # This machine's user apps and their settings
     ./apps.nix
