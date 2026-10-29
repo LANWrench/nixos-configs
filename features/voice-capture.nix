@@ -19,7 +19,7 @@
 let
   user = "michael";
   stateDir = "/var/lib/voice-capture";
-  vaultInbox = "/home/michael/Documents/Obsidian Vault/01_inbox";
+  vaultInbox = "/home/michael/Documents/notes/Alpha/01_inbox";
   modelName = "large-v3-turbo"; # GPU makes the big model practical (top quality)
   modelFile = "${stateDir}/models/ggml-${modelName}.bin";
 

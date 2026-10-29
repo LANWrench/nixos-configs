@@ -1,124 +1,169 @@
 # Setting Up a New NixOS Host
 
-This guide walks through deploying this configuration to a fresh NixOS installation.
+This guide installs a new physical machine (laptop, desktop) straight from this
+flake, from the NixOS installer — no intermediate "plain NixOS" install. For a
+WSL instance, skip to [WSL Instance](#wsl-instance).
 
-## Prerequisites
+A new host is always the same two additions:
 
-- Fresh NixOS installation (basic system working)
-- Internet connection
-- Root access or sudo privileges
+1. a folder `hosts/<name>/` (its recipe)
+2. one line in `flake.nix`: `<name> = mkHost { hostname = "<name>"; };`
 
-## Quick Start
+Everything else (home-manager, agenix, stylix, pkgs-stable) is wired by
+`lib/mkhost.nix`. The examples below use `laptop` as the hostname.
+
+## Things fixed by the config (read before you start)
+
+- **Repo location is fixed:** `/home/michael/nix-config`.
+  `features/auto-update.nix` hardcodes that path.
+- **No password is set declaratively** (`common/user.nix`), and SSH password
+  login is off (`common/system.nix`). You set michael's password by hand once,
+  during install.
+- **Secrets decrypt with SSH keys, not a separate age key.** agenix's default
+  identity is used everywhere:
+  - system secrets (`age.secrets` in NixOS modules, e.g. `features/backup.nix`)
+    → the machine's host key `/etc/ssh/ssh_host_ed25519_key`
+  - home-manager secrets (`age.secrets` inside `home-manager.users.michael`,
+    e.g. `opencode-env` in `hosts/nixos-desktop/apps.nix`)
+    → michael's user key `~/.ssh/id_ed25519`
+
+  A new machine can decrypt nothing until its key is added to
+  `secrets/secrets.nix` and the secrets are re-encrypted on a machine that
+  already can (Step 6). So the **first** install leaves out secret-using
+  features.
+
+## Step 1: Partition and Mount (installer)
+
+Boot the NixOS installer (graphical or minimal) and get online. Mirror the
+desktop's btrfs layout: subvolumes `root`, `home`, `nix`, plus a vfat `/boot`.
+Example for a UEFI machine with one NVMe disk — **check the device name with
+`lsblk` first; this wipes it:**
 
 ```bash
-# 1. Clone this repo
-git clone https://github.com/LANWrench/nixos-configs.git ~/nix-config
-cd ~/nix-config
+sudo -i
+DISK=/dev/nvme0n1
 
-# 2. Create the host from the checklist below (host dir + one flake line)
+parted $DISK -- mklabel gpt
+parted $DISK -- mkpart ESP fat32 1MiB 1GiB
+parted $DISK -- set 1 esp on
+parted $DISK -- mkpart nixos btrfs 1GiB 100%
 
-# 3. Build
-git add .   # flakes only see git-tracked files
-sudo nixos-rebuild switch --flake ~/nix-config#<hostname>
+mkfs.fat -F 32 -n boot ${DISK}p1
+mkfs.btrfs -L nixos ${DISK}p2
+
+mount /dev/disk/by-label/nixos /mnt
+btrfs subvolume create /mnt/root
+btrfs subvolume create /mnt/home
+btrfs subvolume create /mnt/nix
+umount /mnt
+
+mount -o subvol=root /dev/disk/by-label/nixos /mnt
+mkdir -p /mnt/{home,nix,boot}
+mount -o subvol=home /dev/disk/by-label/nixos /mnt/home
+mount -o subvol=nix  /dev/disk/by-label/nixos /mnt/nix
+mount -o umask=077   /dev/disk/by-label/boot  /mnt/boot
+
+# Snapper's /home snapshots (features/btrfs-snapshots.nix) need this subvolume;
+# NixOS won't create it
+btrfs subvolume create /mnt/home/.snapshots
 ```
 
-## Detailed Setup for New Host
+Laptops: consider full-disk encryption — `cryptsetup luksFormat ${DISK}p2`,
+`cryptsetup open ${DISK}p2 cryptroot`, then use `/dev/mapper/cryptroot` in
+place of the partition above. `nixos-generate-config` picks up the LUKS device
+automatically.
 
-### Step 1: Install Base NixOS System
-
-1. Boot from NixOS installer
-2. Partition disk (recommend BTRFS for snapshots)
-3. Mount partitions
-4. Generate base config:
-   ```bash
-   nixos-generate-config --root /mnt
-   ```
-5. Install:
-   ```bash
-   nixos-install
-   reboot
-   ```
-
-### Step 2: Initial Boot Setup
-
-After rebooting into the fresh system:
+## Step 2: Generate the Hardware Config
 
 ```bash
-# Ensure git is available. If not:
+nixos-generate-config --root /mnt
+```
+
+Only `/mnt/etc/nixos/hardware-configuration.nix` is used; the generated
+`configuration.nix` is ignored (the flake replaces it).
+
+## Step 3: Clone the Repo and Create the Host
+
+```bash
 nix-shell -p git
+git clone https://github.com/LANWrench/nixos-configs.git /mnt/home/michael/nix-config
+cd /mnt/home/michael/nix-config
 
-# Set up SSH keys for GitHub (if using SSH clone)
-ssh-keygen -t ed25519 -C "your_email@example.com"
-cat ~/.ssh/id_ed25519.pub
-# Add this key to GitHub: Settings → SSH and GPG keys
+mkdir hosts/laptop
+cp /mnt/etc/nixos/hardware-configuration.nix hosts/laptop/hardware-generated.nix
 ```
 
-### Step 3: Clone Configuration
+Create the host files (templates below), then add the host to `flake.nix`:
 
-```bash
-# SSH (if you set up keys)
-git clone git@github.com:LANWrench/nixos-configs.git ~/nix-config
-
-# OR HTTPS (easier for first setup)
-git clone https://github.com/LANWrench/nixos-configs.git ~/nix-config
-
-cd ~/nix-config
+```nix
+nixosConfigurations = {
+  nixos-desktop = mkHost { hostname = "nixos-desktop"; };
+  wsl-work = mkHost { hostname = "wsl-work"; };
+  laptop = mkHost { hostname = "laptop"; };   # ← ADD THIS
+};
 ```
 
-### Step 4: Create the Host Directory
+### hosts/laptop/default.nix
 
-```bash
-mkdir -p hosts/laptop
-
-# Copy the GENERATED hardware config from the fresh install — this is
-# per-host and never shared between machines
-sudo cp /etc/nixos/hardware-configuration.nix hosts/laptop/hardware-generated.nix
-```
-
-**hosts/laptop/default.nix** — the machine's full recipe. Everything the
-machine runs is imported here, plus the few settings only it has:
+The machine's full recipe — everything it runs is imported here:
 
 ```nix
 { config, lib, pkgs, inputs, ... }:
 
+# laptop — the machine's full recipe. Everything this host runs is
+# imported here; nothing is pulled in implicitly.
 {
   imports = [
-    ../../common                    # Every machine (always — WSL-safe by construction)
-    ../../platform/physical.nix     # Real hardware: audio, NetworkManager, printing
+    # Every machine (system + home-manager): shell, git, neovim, SSH, user
+    ../../common
+
+    # Platform: real hardware (audio, NetworkManager, printing)
+    ../../platform/physical.nix
 
     # Hardware
-    ./hardware-generated.nix        # generated — never hand-edit
-    ./hardware.nix                  # hand-written: GPU, boot, power
+    ./hardware-generated.nix # Generated by nixos-generate-config; never hand-edit
+    ./hardware.nix # Hand-written: boot, GPU, power
 
-    # Features (pick what you need)
-    ../../features/btrfs-snapshots.nix  # ✓ Snapshots
-    ../../features/backup.nix           # ✓ Backups
-    ../../features/auto-update.nix      # ✓ Auto-updates
-    # ../../features/virtualization.nix  # ✗ Skip - too heavy for laptop
-    # ../../features/gaming.nix          # ✗ Skip - desktop only
+    # Features (opt-in)
+    ../../features/btrfs-snapshots.nix # Local /home snapshots
+    ../../features/health-banner.nix # Health check on terminal startup
+    # ../../features/backup.nix        # Needs secrets — enable in Step 6
+    # ../../features/auto-update.nix   # See "Auto-update on more than one host"
+    # ../../features/containers.nix    # Podman
+    # ../../features/virtualization.nix # libvirt/QEMU — heavy for a laptop
+    # NOT for non-Nvidia/low-power machines: gaming, local-llm, voice-capture
+    # (they assume the desktop's RTX 4090 / CUDA setup)
 
-    ../../desktops/niri         # Desktop (brings fonts + Stylix theming)
+    # Desktop environment (system + home-manager halves in one file)
+    ../../desktops/niri
 
-    ./apps.nix                      # This machine's user apps
+    # This machine's user apps
+    ./apps.nix
   ];
 
-  # ===== Host settings ===== (hostname is set by mkHost)
+  # ===== Host settings =====
+  # (hostname is set by mkHost in lib/mkhost.nix)
   time.timeZone = "America/Chicago";
+
   networking.firewall.allowedTCPPorts = [ ];
 
-  # The release this machine was INSTALLED with — never bump
+  # stateVersion (system and home) is frozen at the release this machine was
+  # INSTALLED with — the installer ISO's release. Never bump it when updating.
   system.stateVersion = "26.05";
   home-manager.users.michael.home.stateVersion = "26.05";
 }
 ```
 
-**hosts/laptop/hardware.nix** — hand-written hardware config:
+### hosts/laptop/hardware.nix
+
+Hand-written hardware config. **Don't copy `hosts/nixos-desktop/hardware.nix`**
+— it is Nvidia/CUDA-specific (driver, `cudaCapabilities`, CUDA btop and
+llama-cpp builds).
 
 ```nix
 { config, pkgs, ... }:
 
 {
-  # Boot configuration
   boot = {
     loader = {
       systemd-boot.enable = true;
@@ -127,14 +172,15 @@ machine runs is imported here, plus the few settings only it has:
     kernelPackages = pkgs.linuxPackages_latest;
   };
 
-  # Graphics (adjust for your GPU — see hosts/nixos-desktop/hardware.nix
-  # for an Nvidia example)
+  # Intel/AMD integrated graphics need nothing beyond this. For Nvidia,
+  # see hosts/nixos-desktop/hardware.nix (hybrid laptops also need
+  # hardware.nvidia.prime).
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
   };
 
-  # LAPTOP SPECIFIC: Power management
+  # Power management
   services.tlp = {
     enable = true;
     settings = {
@@ -143,7 +189,6 @@ machine runs is imported here, plus the few settings only it has:
     };
   };
 
-  # BTRFS auto-scrub (if using BTRFS)
   services.btrfs.autoScrub = {
     enable = true;
     interval = "weekly";
@@ -152,8 +197,10 @@ machine runs is imported here, plus the few settings only it has:
 }
 ```
 
-**hosts/laptop/apps.nix** — `common/` already provides shell, prompt, neovim,
-git identity, and CLI tools; only list what is extra on this machine:
+### hosts/laptop/apps.nix
+
+`common/` already provides shell, prompt, neovim, git identity, and CLI tools;
+only list what is extra on this machine:
 
 ```nix
 { pkgs, pkgs-stable, ... }:
@@ -168,67 +215,101 @@ git identity, and CLI tools; only list what is extra on this machine:
 A small host can skip `apps.nix` and put that `home.packages` line straight
 into `default.nix` (see `hosts/wsl-work/default.nix`).
 
-### Step 5: Add the Host to flake.nix
+### Displays
 
-One line — `lib/mkhost.nix` wires up home-manager, agenix, stylix, and
-pkgs-stable automatically:
+`desktops/niri/config.kdl` is shared by every host. It already contains a
+disabled `/-output "eDP-1" { ... }` block (the usual laptop panel name);
+remove the `/-` to enable it, e.g. for a `scale`. Output blocks only match the
+named output, so they don't affect other machines.
 
-```nix
-nixosConfigurations = {
-  nixos-desktop = mkHost { hostname = "nixos-desktop"; };
-  laptop        = mkHost { hostname = "laptop"; };   # ← ADD THIS
-};
-```
-
-### Step 6: Handle Secrets (If Using)
-
-If you use agenix secrets (backup credentials, opencode key — see `secrets/secrets.nix`):
+## Step 4: Install
 
 ```bash
-# Copy your age key to new machine
-# On old machine:
-sudo cat /path/to/age.key
+cd /mnt/home/michael/nix-config
+git add .    # flakes only see git-tracked files
 
-# On new machine:
-sudo mkdir -p /etc/agenix
-sudo nano /etc/agenix/age.key
-# Paste the key
-sudo chmod 600 /etc/agenix/age.key
+nixos-install --flake .#laptop    # also prompts for a root password
+
+# michael's login password (none is set declaratively)
+nixos-enter --root /mnt -c 'passwd michael'
+
+# The clone was made as root; hand it to michael (uid 1000, group users=100)
+chown -R 1000:100 /mnt/home/michael/nix-config
+
+reboot
 ```
 
-**OR skip features that need secrets** (e.g. `features/backup.nix`) by not
-importing them in `hosts/<hostname>/default.nix`.
+## Step 5: First Boot
 
-### Step 7: Build and Switch
+Log in as michael, then give the machine its own GitHub key and commit the
+new host:
 
 ```bash
+ssh-keygen -t ed25519 -C "michael@laptop"
+cat ~/.ssh/id_ed25519.pub        # add to GitHub: Settings → SSH and GPG keys
+
 cd ~/nix-config
-git add .   # flakes only see git-tracked files
-
-# Test build first (doesn't activate)
-sudo nixos-rebuild build --flake .#laptop
-
-# If successful, switch
-sudo nixos-rebuild switch --flake .#laptop
+git remote set-url origin git@github.com:LANWrench/nixos-configs.git
+git add . && git commit -m "Add laptop host" && git push
 ```
 
-### Step 8: Post-Install Setup
+From now on, rebuild with:
 
 ```bash
-# If using BTRFS snapshots, create snapshot subvolume
-sudo btrfs subvolume create /home/.snapshots
-
-# Set up Restic password
-sudo nano /root/restic-password.txt
-sudo chmod 600 /root/restic-password.txt
-
-# Initialize Restic repository
-sudo restic -r /backup init
-# OR for off-site: sudo restic -r /mnt/external/backup init
-
-# Reboot to ensure everything works
-sudo reboot
+sudo nixos-rebuild switch --flake ~/nix-config#laptop
 ```
+
+## Step 6: Secrets (to enable backup etc.)
+
+Re-encryption must happen on a machine that can already decrypt — i.e. the
+desktop, whose user key is a recipient of every secret.
+
+1. **On the laptop**, print its keys:
+   ```bash
+   cat /etc/ssh/ssh_host_ed25519_key.pub   # host key → system secrets
+   cat ~/.ssh/id_ed25519.pub               # user key → home-manager secrets
+   ```
+2. **On the desktop**, add them to `secrets/secrets.nix` and to each secret
+   the laptop needs:
+   ```nix
+   laptop = "ssh-ed25519 AAAA... root@laptop";
+   michael-laptop = "ssh-ed25519 AAAA... michael@laptop";
+   ...
+   "b2-handmcnet-backups-s3.age".publicKeys = [ michael host laptop ];
+   ```
+   Add `michael-laptop` to a home-manager secret like `opencode-env.age` only
+   if the laptop will use it. Adding `michael-laptop` to *every* secret also
+   lets you re-encrypt from the laptop later.
+3. **On the desktop**, re-encrypt and push:
+   ```bash
+   cd ~/nix-config/secrets
+   agenix -r          # agenix CLI comes from common/cli.nix
+   cd .. && git add secrets && git commit -m "secrets: add laptop" && git push
+   ```
+4. **On the laptop**, pull, uncomment `../../features/backup.nix` in
+   `hosts/laptop/default.nix`, create the restic password, and rebuild:
+   ```bash
+   cd ~/nix-config && git pull
+   sudo sh -c 'umask 077; nano /root/restic-password.txt'
+   sudo nixos-rebuild switch --flake .#laptop
+   ```
+   The B2 repository path includes the hostname and `initialize = true`, so
+   the laptop gets its own repo (`handmcnet-backups/laptop`) on the first run
+   — no manual `restic init`. Test it with
+   `sudo systemctl start restic-backups-fullMachine` and check
+   `journalctl -u restic-backups-fullMachine`.
+
+## Auto-update on more than one host
+
+`features/auto-update.nix` commits the new `flake.lock` **locally and never
+pushes**. If two machines both import it, each makes its own weekly
+`flake.lock` commit and their histories diverge — every `git pull` then hits a
+`flake.lock` conflict (resolve with `git checkout --theirs flake.lock`, i.e.
+take the other machine's lock).
+
+Simplest setup: import `auto-update.nix` on **one** host (the desktop) and
+push from there; on other hosts, update with
+`git pull && sudo nixos-rebuild switch --flake .#<name>`.
 
 ## Special Cases
 
@@ -257,12 +338,15 @@ sudo reboot
    ```
 2. `<name> = mkHost { hostname = "<name>"; };` in flake.nix
 3. On the Windows machine: import the NixOS-WSL tarball
-   (github.com/nix-community/NixOS-WSL/releases), clone this repo inside it,
-   `git add .`, and `sudo nixos-rebuild switch --flake .#<name>`. Restart the
+   (github.com/nix-community/NixOS-WSL/releases), clone this repo inside it
+   to `/home/michael/nix-config`, `git add .`, and
+   `sudo nixos-rebuild switch --flake .#<name>`. Restart the
    distro (`wsl --terminate <DistroName>`) so login switches to `wsl.defaultUser`.
    Sudo needs no password (NixOS-WSL default); run `passwd` to set one if desired.
 
 Skip: btrfs-snapshots, virtualization, gaming, backup (or configure differently).
+Secrets work as in Step 6 (the WSL instance has its own host key once
+`services.openssh` from `common/system.nix` has run).
 The WSL *distribution* name Windows registers is independent of the Linux
 hostname; they can differ freely.
 
@@ -287,11 +371,13 @@ grep -rln 'michael' --include=*.nix . | xargs sed -i 's/\bmichael\b/yourname/g'
 
 ### Build Fails: "option does not exist"
 - Comment out features you don't need
-- Check for hardware-specific options (Nvidia on AMD laptop)
+- Check for hardware-specific options (Nvidia on an AMD/Intel laptop)
 
-### Secrets Error
-- Don't import services that need secrets
-- Or copy age keys from existing system
+### Secrets Error ("no identity found" / agenix fails at activation)
+- The machine's key isn't a recipient yet — do Step 6, or don't import the
+  feature that uses the secret
+- System secrets need the **host** key; home-manager secrets need the **user**
+  key (`~/.ssh/id_ed25519`)
 
 ### Git Tree is Dirty
 - Commit your changes: `git add . && git commit -m "Add laptop host"`
@@ -299,31 +385,16 @@ grep -rln 'michael' --include=*.nix . | xargs sed -i 's/\bmichael\b/yourname/g'
 
 ## Verification Checklist
 
-After successful rebuild:
+After the first boot:
 
-- [ ] System boots
-- [ ] Desktop environment works
-- [ ] Network connection works
+- [ ] System boots; niri/greeter comes up
+- [ ] Network connection works (NetworkManager)
 - [ ] Audio works
-- [ ] User can login; shell is fish with starship prompt
-- [ ] SSH works (if configured)
+- [ ] Login shell is fish with starship prompt
+- [ ] `~/nix-config` is owned by michael (`ls -ld ~/nix-config`)
 - [ ] Timers are running: `systemctl list-timers`
-- [ ] Snapshots created (if using): `sudo snapper list-configs`
-
-## Next Steps
-
-1. **Commit your new host config**:
-   ```bash
-   git add .
-   git commit -m "Add laptop host configuration"
-   git push
-   ```
-
-2. **Configure off-site backups** - Edit `features/backup.nix` to use external storage or cloud
-
-3. **Customize packages** - Edit `hosts/<hostname>/apps.nix` for host-specific needs
-
-4. **Test restore** - Verify you can restore from snapshots/backups
+- [ ] Snapshots configured (if using): `sudo snapper list-configs`
+- [ ] Backup runs (after Step 6): `systemctl status restic-backups-fullMachine`
 
 ## Quick Reference
 
