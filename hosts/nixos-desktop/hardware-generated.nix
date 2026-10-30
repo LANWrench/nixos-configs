@@ -73,15 +73,6 @@
     ];
   };
 
-  fileSystems."/backup" = {
-    device = "/dev/disk/by-label/desktop-nixos";
-    fsType = "btrfs";
-    options = [
-      "subvol=backup"
-      "noatime"
-    ];
-  };
-
   fileSystems."/mnt/data" = {
     device = "/dev/disk/by-label/DATA";
     fsType = "ext4";

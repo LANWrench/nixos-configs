@@ -199,11 +199,11 @@
         hint_lines+=("fix:    set nixpkgs-stable.url to nixos-''${stable_behind##* } in ~/nix-config/flake.nix")
       fi
 
-      # Filesystems at >=90% capacity (deduped by device: /, /home and
-      # /backup are subvolumes of the same btrfs disk). Skips unmounted /
-      # automount targets so we don't trigger a mount just to check.
+      # Filesystems at >=90% capacity (deduped by device: / and /home are
+      # subvolumes of the same btrfs disk). Skips unmounted / automount
+      # targets so we don't trigger a mount just to check.
       declare -A _seen_dev
-      for mnt in / /home /backup /games /mnt/data; do
+      for mnt in / /home /games /mnt/data; do
         fstype=$(findmnt -rn -o FSTYPE "$mnt" 2>/dev/null | tail -n1)
         if [ -z "$fstype" ] || [ "$fstype" = "autofs" ]; then continue; fi
         read -r dev pcent < <(df --output=source,pcent "$mnt" 2>/dev/null | tail -n1)
