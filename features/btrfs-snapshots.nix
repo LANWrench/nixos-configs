@@ -4,7 +4,9 @@
   # Install snapper tools
   environment.systemPackages = with pkgs; [
     snapper
-    snapper-gui  # Optional: GUI for browsing snapshots
+    # GUI: btrfs-assistant (hosts/nixos-desktop/apps.nix). snapper-gui was
+    # dropped: unmaintained since 2022 and broken by setuptools removing
+    # pkg_resources.
   ];
 
   # ============ BTRFS SNAPSHOTS WITH SNAPPER ============
