@@ -52,12 +52,15 @@
         RandomizedDelaySec = "1h"; # Random 0-60min delay
       };
 
-      # Off-site retention. Snapper covers fine-grained recent history locally
-      # (see features/btrfs-snapshots.nix), so restic is disaster recovery only.
+      # Off-site retention, matching the fleet (nix-fleet modules/restic.nix).
+      # Snapper covers fine-grained recent history locally (see
+      # features/btrfs-snapshots.nix); restic's long tail is for losses noticed
+      # months later. Dedup keeps the extra monthly/yearly snapshots cheap.
       pruneOpts = [
-        "--keep-daily 7"
-        "--keep-weekly 4"
-        "--keep-monthly 6"
+        "--keep-daily 14"
+        "--keep-weekly 8"
+        "--keep-monthly 24"
+        "--keep-yearly 5"
       ];
 
       # Repository maintenance
