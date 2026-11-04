@@ -56,7 +56,6 @@
       opentofu
       colmena
       kubectl
-      azure-cli
       dotnet-sdk
 
       # BTRFS Tools
@@ -148,15 +147,10 @@
       profiles.default = {
         enableUpdateCheck = false;
         enableExtensionUpdateCheck = false;
+        # Only extensions actually in use — don't add ones to try out here.
         extensions = with pkgs.vscode-extensions; [
           hashicorp.terraform
-          ms-azuretools.vscode-bicep
-          ms-dotnettools.vscode-dotnet-runtime
         ];
-        userSettings = {
-          "dotnetAcquisitionExtension.sharedExistingDotnetPath" = "/etc/profiles/per-user/michael/bin/dotnet";
-          "dotnetAcquisitionExtension.allowInvalidPaths" = true;
-        };
       };
     };
   };
