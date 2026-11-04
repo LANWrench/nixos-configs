@@ -6,7 +6,8 @@
   imports = [
     ./system.nix # Nix settings, SSH daemon, polkit, dbus, FUSE
     ./user.nix # michael's account + home-manager basics
-    ./cli.nix # Shared CLI packages and tools (tmux, fzf, btop, claude-code)
+    ./cli.nix # Shared CLI packages and tools (fzf, btop, claude-code)
+    ./tmux.nix # tmux, sesh, zoxide
     ./shell.nix # fish, bash
     ./starship.nix # Prompt
     ./neovim # Neovim (+ config.lua)

@@ -16,4 +16,8 @@
   # The user WSL logs in as by default (`wsl` with no -u). Must match a
   # declared user account (common/user.nix).
   wsl.defaultUser = "michael";
+
+  # Keep the tmux socket out of /run/user, which is removed when the last WSL
+  # session logs out. That would orphan a server still running in the background.
+  home-manager.users.michael.programs.tmux.secureSocket = false;
 }

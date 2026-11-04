@@ -42,11 +42,7 @@ vim.opt.listchars = { tab = '» ', trail = '·' }
 -- Clear search highlight
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
--- Move between splits with Ctrl+hjkl
-vim.keymap.set('n', '<C-h>', '<C-w>h')
-vim.keymap.set('n', '<C-j>', '<C-w>j')
-vim.keymap.set('n', '<C-k>', '<C-w>k')
-vim.keymap.set('n', '<C-l>', '<C-w>l')
+-- Ctrl+hjkl moves between splits and tmux panes: mapped by vim-tmux-navigator.
 
 -- Exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>')

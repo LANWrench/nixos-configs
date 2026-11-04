@@ -42,6 +42,7 @@
         mini-nvim
         conform-nvim
         nvim-autopairs
+        vim-tmux-navigator
 
         (nvim-treesitter.withPlugins (p: [
           p.nix

@@ -20,7 +20,8 @@ nix-config/
 │   ├── default.nix           #   aggregator — hosts import ../../common
 │   ├── system.nix            #   Nix settings, SSH daemon, polkit, dbus, FUSE
 │   ├── user.nix              #   michael's account + home-manager basics
-│   ├── cli.nix               #   shared CLI packages + tmux, fzf, btop, claude-code
+│   ├── cli.nix               #   shared CLI packages + fzf, btop, claude-code
+│   ├── tmux.nix              #   tmux, sesh, zoxide
 │   ├── shell.nix             #   fish, bash
 │   ├── starship.nix          #   prompt
 │   ├── git.nix               #   git identity — defined ONCE
