@@ -16,6 +16,9 @@
         pyright
         typescript-language-server
         gopls
+        svelte-language-server
+        vscode-langservers-extracted # provides vscode-eslint-language-server
+        terraform-ls
 
         stylua
         nixfmt-rfc-style
@@ -23,6 +26,7 @@
         prettierd
         gofumpt
         gotools
+        opentofu # `tofu fmt` for .tf files (same canonical style as `terraform fmt`)
       ];
 
       plugins = with pkgs.vimPlugins; [
@@ -45,6 +49,10 @@
           p.javascript
           p.typescript
           p.tsx
+          p.svelte
+          p.css
+          p.terraform
+          p.hcl
           p.python
           p.lua
           p.json

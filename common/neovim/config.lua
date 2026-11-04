@@ -52,6 +52,13 @@ vim.keymap.set('n', '<C-l>', '<C-w>l')
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>')
 
 -- ============================================================================
+-- Filetypes
+-- ============================================================================
+
+-- Neovim maps .tf to TinyFugue ('tf') by default; we only ever mean Terraform.
+vim.filetype.add { extension = { tf = 'terraform' } }
+
+-- ============================================================================
 -- Treesitter
 -- ============================================================================
 
@@ -115,7 +122,67 @@ vim.lsp.config['gopls'] = {
   },
 }
 
-vim.lsp.enable { 'lua_ls', 'nixd', 'pyright', 'ts_ls', 'gopls' }
+vim.lsp.config['svelte'] = {
+  cmd = { 'svelteserver', '--stdio' },
+  filetypes = { 'svelte' },
+  root_markers = { 'package.json', '.git' },
+}
+
+-- Only attaches in projects that have an ESLint config (workspace_required),
+-- and uses the project's own eslint from node_modules — run `npm install` first.
+vim.lsp.config['eslint'] = {
+  cmd = { 'vscode-eslint-language-server', '--stdio' },
+  filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'svelte' },
+  root_markers = {
+    'eslint.config.js', 'eslint.config.mjs', 'eslint.config.cjs', 'eslint.config.ts',
+    '.eslintrc', '.eslintrc.js', '.eslintrc.cjs', '.eslintrc.json', '.eslintrc.yml', '.eslintrc.yaml',
+  },
+  workspace_required = true,
+  settings = {
+    validate = 'on',
+    run = 'onType',
+    format = false, -- prettier formats; eslint only lints
+    nodePath = '',
+    workingDirectory = { mode = 'auto' },
+    experimental = {},
+    problems = { shortenToSingleLine = false },
+    codeAction = {
+      disableRuleComment = { enable = true, location = 'separateLine' },
+      showDocumentation = { enable = true },
+    },
+  },
+  -- The server is written for VS Code and won't lint without a workspaceFolder.
+  before_init = function(_, config)
+    config.settings.workspaceFolder = {
+      uri = vim.uri_from_fname(config.root_dir),
+      name = vim.fn.fnamemodify(config.root_dir, ':t'),
+    }
+  end,
+  handlers = {
+    -- Asks "may I run this project's eslint?" — 4 = approved.
+    ['eslint/confirmESLintExecution'] = function() return 4 end,
+    ['eslint/openDoc'] = function(_, result)
+      vim.ui.open(result.url)
+      return {}
+    end,
+    ['eslint/noLibrary'] = function()
+      vim.notify('ESLint: no eslint in node_modules (run npm install)', vim.log.levels.WARN)
+      return {}
+    end,
+    ['eslint/probeFailed'] = function()
+      vim.notify('ESLint: probe failed', vim.log.levels.WARN)
+      return {}
+    end,
+  },
+}
+
+vim.lsp.config['terraformls'] = {
+  cmd = { 'terraform-ls', 'serve' },
+  filetypes = { 'terraform', 'terraform-vars' },
+  root_markers = { '.terraform', '.git' },
+}
+
+vim.lsp.enable { 'lua_ls', 'nixd', 'pyright', 'ts_ls', 'gopls', 'svelte', 'eslint', 'terraformls' }
 
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('lsp-attach', { clear = true }),
@@ -239,7 +306,10 @@ require('conform').setup {
     typescript = { 'prettierd' },
     javascriptreact = { 'prettierd' },
     typescriptreact = { 'prettierd' },
+    svelte     = { 'prettierd' }, -- needs the project's prettier-plugin-svelte
     go         = { 'gofumpt', 'goimports' },
+    terraform  = { 'tofu_fmt' },
+    ['terraform-vars'] = { 'tofu_fmt' },
   },
   format_on_save = {
     timeout_ms = 500,
