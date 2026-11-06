@@ -19,5 +19,9 @@
 
   # Keep the tmux socket out of /run/user, which is removed when the last WSL
   # session logs out. That would orphan a server still running in the background.
+  # WSL also stops an idle distro once its terminals close, which Nix can't change.
+  # To keep tmux running, set this on Windows in %USERPROFILE%\.wslconfig:
+  #   [general]
+  #   instanceIdleTimeout=-1
   home-manager.users.michael.programs.tmux.secureSocket = false;
 }
